@@ -1,0 +1,86 @@
+[
+  {
+    "id": "adip",
+    "name": "ADIP Assistive Devices Support",
+    "detail": "Aids and appliances for eligible persons with disabilities, including hearing aids and mobility devices.",
+    "amount": "Up to Rs 15,000 per device cycle",
+    "disabilityTypes": ["any"],
+    "states": ["All"],
+    "incomeCeiling": 1500000
+  },
+  {
+    "id": "nsap-disability-pension",
+    "name": "NSAP Disability Pension Support",
+    "detail": "Monthly income support for adults with benchmark disability living below the income ceiling.",
+    "amount": "Up to Rs 3,000 per month",
+    "minAge": 18,
+    "maxAge": 79,
+    "disabilityTypes": ["any"],
+    "states": ["All"],
+    "incomeCeiling": 300000
+  },
+  {
+    "id": "pre-matric-scholarship",
+    "name": "Pre-Matric Scholarship for Students with Disabilities",
+    "detail": "Education support for school-age students with disabilities.",
+    "amount": "Up to Rs 50,000 per year",
+    "minAge": 5,
+    "maxAge": 18,
+    "disabilityTypes": ["any"],
+    "states": ["All"],
+    "incomeCeiling": 800000
+  },
+  {
+    "id": "post-matric-scholarship",
+    "name": "Post-Matric Disability Scholarship",
+    "detail": "College and vocational education support for young adults with disabilities.",
+    "amount": "Up to Rs 60,000 per year",
+    "minAge": 17,
+    "maxAge": 30,
+    "disabilityTypes": ["any"],
+    "states": ["All"],
+    "incomeCeiling": 800000
+  },
+  {
+    "id": "niramaya",
+    "name": "Niramaya Health Insurance",
+    "detail": "Health insurance cover for persons with specified disabilities, including therapy and hospitalisation.",
+    "amount": "Cover up to Rs 1,00,000 per year",
+    "disabilityTypes": ["any"],
+    "states": ["All"],
+    "incomeCeiling": 2000000
+  },
+  {
+    "id": "maharashtra-udid-support",
+    "name": "Maharashtra UDID Facilitation Support",
+    "detail": "State facilitation for Unique Disability ID enrolment and local scheme bridging in Maharashtra.",
+    "amount": "Facilitation grant up to Rs 5,000",
+    "minAge": 0,
+    "maxAge": 120,
+    "disabilityTypes": ["any"],
+    "states": ["Maharashtra"],
+    "incomeCeiling": 1200000
+  },
+  {
+    "id": "skill-training",
+    "name": "Accessible India Skill Training Stipend",
+    "detail": "Stipend for job-oriented skill training for working-age persons with disabilities.",
+    "amount": "Rs 2,500 per month during training",
+    "minAge": 18,
+    "maxAge": 45,
+    "disabilityTypes": ["any"],
+    "states": ["All"],
+    "incomeCeiling": 600000
+  },
+  {
+    "id": "senior-care",
+    "name": "Senior Disability Care Assistance",
+    "detail": "Home-based care and caregiver support for older persons with disabilities.",
+    "amount": "Up to Rs 2,000 per month",
+    "minAge": 60,
+    "maxAge": 120,
+    "disabilityTypes": ["any"],
+    "states": ["All"],
+    "incomeCeiling": 500000
+  }
+]

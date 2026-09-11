@@ -1,42 +1,10 @@
-import { createContext, useContext, useState } from 'react'
+import { createContext, useContext } from 'react'
+import { useLocalCitizenData } from '../hooks/useLocalCitizenData'
 
 const CitizenContext = createContext(null)
 
 export function CitizenProvider({ children }) {
-  const [citizenData, setCitizenData] = useState({
-    name: '',
-    dateOfBirth: '',
-    idNumber: '',
-    address: '',
-  })
-
-  const [matchedSchemes, setMatchedSchemes] = useState([])
-
-  const updateCitizenData = (data) => {
-    setCitizenData((previous) => ({
-      ...previous,
-      ...data,
-    }))
-  }
-
-  const clearCitizenData = () => {
-    setCitizenData({
-      name: '',
-      dateOfBirth: '',
-      idNumber: '',
-      address: '',
-    })
-
-    setMatchedSchemes([])
-  }
-
-  const value = {
-    citizenData,
-    updateCitizenData,
-    matchedSchemes,
-    setMatchedSchemes,
-    clearCitizenData,
-  }
+  const value = useLocalCitizenData()
 
   return (
     <CitizenContext.Provider value={value}>
@@ -49,9 +17,7 @@ export function useCitizen() {
   const context = useContext(CitizenContext)
 
   if (!context) {
-    throw new Error(
-      'useCitizen must be used inside CitizenProvider'
-    )
+    throw new Error('useCitizen must be used inside CitizenProvider')
   }
 
   return context

@@ -1,10 +1,4 @@
-import { useEffect } from 'react'
-
 function ScreenReaderAnnouncer({ message }) {
-  useEffect(() => {
-    if (!message) return
-  }, [message])
-
   return (
     <div
       aria-live="assertive"
