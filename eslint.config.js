@@ -19,7 +19,7 @@ export default defineConfig([
     },
   },
   {
-    files: ['src/context/**/*.{js,jsx}', 'src/components/common/OneKeyNavProvider.jsx'],
+    files: ['src/context/**/*.{js,jsx}', 'src/components/common/OneKeyNavProvider.jsx', 'src/components/gesture/GestureSession.jsx'],
     rules: {
       'react-refresh/only-export-components': 'off',
     },

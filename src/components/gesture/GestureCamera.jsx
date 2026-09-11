@@ -1,56 +1,66 @@
 import { useEffect, useRef, useState } from 'react'
+import { useCamera } from '../../context/CameraContext'
+import CameraErrorPanel from '../common/CameraErrorPanel'
 import GestureOverlay from './GestureOverlay'
 import { useGestureDetector } from './useGestureDetector'
 
-function GestureCamera({ onGesture, onCameraError }) {
+function GestureCamera({ onGesture, compact = false, paused = false, onFallback }) {
   const videoRef = useRef(null)
-  const streamRef = useRef(null)
+  const { stream, errorInfo, startCamera, stopCamera, retryCamera, shouldOfferButtonFallback } = useCamera()
   const [size, setSize] = useState({ width: 640, height: 480 })
-  const { landmarks, gesture, error, ready } = useGestureDetector(videoRef)
+  const { landmarks, gesture, error, ready } = useGestureDetector(videoRef, { paused })
 
   useEffect(() => {
-    let cancelled = false
+    startCamera()
+    return () => stopCamera()
+  }, [startCamera, stopCamera])
 
-    const start = async () => {
+  useEffect(() => {
+    const video = videoRef.current
+    if (!video || !stream) return undefined
+    video.srcObject = stream
+    const play = async () => {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false })
-        if (cancelled) {
-          stream.getTracks().forEach((track) => track.stop())
-          return
-        }
-        streamRef.current = stream
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream
-          await videoRef.current.play()
-          setSize({
-            width: videoRef.current.videoWidth || 640,
-            height: videoRef.current.videoHeight || 480,
-          })
-        }
-      } catch {
-        onCameraError?.('Camera permission was denied. Switch to button navigation.')
+        await video.play()
+        setSize({
+          width: video.videoWidth || 640,
+          height: video.videoHeight || 480,
+        })
+      } catch (err) {
+        console.warn('[camera]', err.name, err.message)
       }
     }
-
-    start()
-    return () => {
-      cancelled = true
-      streamRef.current?.getTracks().forEach((track) => track.stop())
-    }
-  }, [onCameraError])
+    play()
+    return undefined
+  }, [stream])
 
   useEffect(() => {
-    if (gesture) onGesture?.(gesture)
+    onGesture?.(gesture)
   }, [gesture, onGesture])
 
   return (
-    <div className="gesture-stage">
-      <div className="scan-frame">
-        <video ref={videoRef} playsInline muted autoPlay aria-label="Gesture camera preview" />
-        <GestureOverlay landmarks={landmarks} gesture={gesture} videoWidth={size.width} videoHeight={size.height} />
+    <div className={`gesture-stage ${compact ? 'gesture-pip' : ''}`}>
+      <div className={`scan-frame ${errorInfo ? 'placeholder' : ''}`}>
+        {errorInfo ? (
+          <>
+            <span>Camera unavailable</span>
+            <small>{errorInfo.userMessage}</small>
+          </>
+        ) : (
+          <video ref={videoRef} playsInline muted autoPlay aria-label="Gesture camera preview" />
+        )}
+        {!errorInfo && (
+          <GestureOverlay landmarks={landmarks} gesture={gesture} videoWidth={size.width} videoHeight={size.height} />
+        )}
       </div>
-      {!ready && <p className="scan-status">Loading hand tracking…</p>}
+      {!ready && !errorInfo && <p className="scan-status">Loading hand tracking…</p>}
       {error && <p className="error-banner">{error}</p>}
+      <CameraErrorPanel
+        errorInfo={errorInfo}
+        onRetry={retryCamera}
+        onFallback={onFallback}
+        showFallbackAction={shouldOfferButtonFallback}
+      />
     </div>
   )
 }

@@ -32,7 +32,10 @@ function EmergencyHelpScreen() {
       </div>
       <div className="action-row">
         <button className="secondary-button" type="button" onClick={goHome}>Return home</button>
-        <button className="secondary-button" type="button" onClick={clearCitizenData}>Clear my data</button>
+        <button className="secondary-button" type="button" onClick={() => {
+          clearCitizenData()
+          goHome()
+        }}>Clear my data</button>
       </div>
     </section>
   )

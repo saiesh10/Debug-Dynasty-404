@@ -18,6 +18,10 @@ export function useSpeechRecognition(onFinalResult) {
     onFinalRef.current = onFinalResult
   }, [onFinalResult])
 
+  useEffect(() => () => {
+    recognitionRef.current?.stop()
+  }, [])
+
   const stop = useCallback(() => {
     recognitionRef.current?.stop()
     setIsListening(false)

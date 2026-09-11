@@ -5,7 +5,11 @@ const NavigationContext = createContext(null)
 export function NavigationProvider({ children }) {
   const [currentScreen, setCurrentScreen] = useState('home')
   const [entryMode, setEntryMode] = useState(null)
-  const [announcement, setAnnouncement] = useState('DivyangSetu is ready')
+  const [announcement, setAnnouncementState] = useState('DivyangSetu is ready')
+
+  const setAnnouncement = (message) => {
+    setAnnouncementState(message)
+  }
 
   const navigateTo = (screen, mode = null, message = null) => {
     setCurrentScreen(screen)
@@ -14,18 +18,19 @@ export function NavigationProvider({ children }) {
       setEntryMode(mode)
     }
 
-    setAnnouncement(message || `Now showing ${screen}`)
+    setAnnouncementState(message || `Now showing ${screen}`)
   }
 
   const goHome = () => {
     setCurrentScreen('home')
-    setAnnouncement('Choose how you would like to use DivyangSetu')
+    setAnnouncementState('Choose how you would like to use DivyangSetu')
   }
 
   const value = {
     currentScreen,
     entryMode,
     announcement,
+    setAnnouncement,
     navigateTo,
     goHome,
   }

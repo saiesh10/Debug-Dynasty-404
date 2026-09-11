@@ -1,4 +1,7 @@
+import { gestureById } from './gestureCatalog'
+
 function GestureOverlay({ landmarks, gesture, videoWidth, videoHeight }) {
+  const label = gestureById(gesture)?.name || 'No pose yet'
   return (
     <svg className="gesture-overlay" viewBox={`0 0 ${videoWidth || 640} ${videoHeight || 480}`} aria-hidden="true">
       {landmarks.map((point, index) => (
@@ -9,9 +12,7 @@ function GestureOverlay({ landmarks, gesture, videoWidth, videoHeight }) {
           r="6"
         />
       ))}
-      <text x="16" y="32" className="gesture-label">
-        {gesture ? gesture.replace('_', ' ') : 'No pose yet'}
-      </text>
+      <text x="16" y="32" className="gesture-label">{label}</text>
     </svg>
   )
 }

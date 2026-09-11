@@ -17,7 +17,7 @@ function ConfirmDetailsScreen() {
 
   const showSchemes = useCallback(() => {
     if (!citizenData.name && !citizenData.idNumber) {
-      navigateTo('scanner', 'scanner', 'Please scan an identity document first.')
+      navigateTo('scanner', null, 'Please scan an identity document first.')
       return
     }
     const matches = matchSchemes(citizenData)

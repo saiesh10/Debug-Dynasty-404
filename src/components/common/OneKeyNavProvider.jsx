@@ -5,7 +5,7 @@ const OneKeyNavContext = createContext(null)
 
 const TYPING_TARGETS = new Set(['INPUT', 'TEXTAREA', 'SELECT'])
 
-function defaultBackForScreen(screen, navigateTo, goHome) {
+export function defaultBackForScreen(screen, navigateTo, goHome) {
   if (screen === 'home') return
   if (screen === 'confirm') {
     navigateTo('scanner', null, 'Return to the scanner')
@@ -28,8 +28,8 @@ function defaultBackForScreen(screen, navigateTo, goHome) {
 
 export function OneKeyNavProvider({ children }) {
   const { currentScreen, navigateTo, goHome } = useNavigation()
-  const primaryActionRef = useRef(null)
-  const backActionRef = useRef(null)
+  const primaryStackRef = useRef([])
+  const backStackRef = useRef([])
   const screenRef = useRef(currentScreen)
 
   useEffect(() => {
@@ -37,18 +37,36 @@ export function OneKeyNavProvider({ children }) {
   }, [currentScreen])
 
   const registerPrimaryAction = useCallback((action) => {
-    primaryActionRef.current = typeof action === 'function' ? action : null
+    if (typeof action !== 'function') return () => {}
+    const entry = { action }
+    primaryStackRef.current.push(entry)
     return () => {
-      primaryActionRef.current = null
+      primaryStackRef.current = primaryStackRef.current.filter((item) => item !== entry)
     }
   }, [])
 
   const registerBackAction = useCallback((action) => {
-    backActionRef.current = typeof action === 'function' ? action : null
+    if (typeof action !== 'function') return () => {}
+    const entry = { action }
+    backStackRef.current.push(entry)
     return () => {
-      backActionRef.current = null
+      backStackRef.current = backStackRef.current.filter((item) => item !== entry)
     }
   }, [])
+
+  const runPrimaryAction = useCallback(() => {
+    const entry = primaryStackRef.current.at(-1)
+    if (typeof entry?.action === 'function') entry.action()
+  }, [])
+
+  const runBackAction = useCallback(() => {
+    const entry = backStackRef.current.at(-1)
+    if (typeof entry?.action === 'function') {
+      entry.action()
+      return
+    }
+    defaultBackForScreen(screenRef.current, navigateTo, goHome)
+  }, [goHome, navigateTo])
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -63,23 +81,17 @@ export function OneKeyNavProvider({ children }) {
 
       if (event.code === 'Space') {
         event.preventDefault()
-        if (typeof primaryActionRef.current === 'function') {
-          primaryActionRef.current()
-        }
+        runPrimaryAction()
         return
       }
 
       event.preventDefault()
-      if (typeof backActionRef.current === 'function') {
-        backActionRef.current()
-        return
-      }
-      defaultBackForScreen(screenRef.current, navigateTo, goHome)
+      runBackAction()
     }
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [navigateTo, goHome])
+  }, [runBackAction, runPrimaryAction])
 
   const value = useMemo(
     () => ({
@@ -88,8 +100,10 @@ export function OneKeyNavProvider({ children }) {
       goHome,
       registerPrimaryAction,
       registerBackAction,
+      runPrimaryAction,
+      runBackAction,
     }),
-    [currentScreen, navigateTo, goHome, registerPrimaryAction, registerBackAction],
+    [currentScreen, navigateTo, goHome, registerPrimaryAction, registerBackAction, runPrimaryAction, runBackAction],
   )
 
   return (

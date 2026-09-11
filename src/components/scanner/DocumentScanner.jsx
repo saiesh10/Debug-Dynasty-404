@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useCitizen } from '../../context/CitizenContext'
 import { useNavigation } from '../../context/NavigationContext'
+import { useCamera } from '../../context/CameraContext'
 import { OCR_FIELD_CONFIDENCE_THRESHOLD } from '../../constants'
 import { usePrimaryAction } from '../common/OneKeyNavProvider'
+import CameraErrorPanel from '../common/CameraErrorPanel'
 import { extractFields } from './fieldExtractor'
 import ManualCorrectionForm from './ManualCorrectionForm'
 import { useOCR } from './useOCR'
@@ -32,59 +34,32 @@ function needsManualCorrection(fields) {
 function DocumentScanner() {
   const videoRef = useRef(null)
   const canvasRef = useRef(null)
-  const streamRef = useRef(null)
   const { updateCitizenData } = useCitizen()
   const { navigateTo, goHome } = useNavigation()
+  const { stream, errorInfo, startCamera, stopCamera, retryCamera, shouldOfferButtonFallback } = useCamera()
   const { recognize, isReading, error: ocrError } = useOCR()
-  const [cameraError, setCameraError] = useState(null)
   const [draftFields, setDraftFields] = useState(null)
   const [showCorrection, setShowCorrection] = useState(false)
+  const [buttonNavigation, setButtonNavigation] = useState(false)
   const [status, setStatus] = useState('Position an identity document in the frame.')
 
-  const stopCamera = useCallback(() => {
-    streamRef.current?.getTracks().forEach((track) => track.stop())
-    streamRef.current = null
-  }, [])
+  useEffect(() => {
+    startCamera()
+    return () => stopCamera()
+  }, [startCamera, stopCamera])
 
   useEffect(() => {
-    let cancelled = false
-
-    const startCamera = async () => {
-      if (!navigator.mediaDevices?.getUserMedia) {
-        setCameraError('Camera is not available in this browser. Upload a photo instead.')
-        return
-      }
-
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'environment' },
-          audio: false,
-        })
-        if (cancelled) {
-          stream.getTracks().forEach((track) => track.stop())
-          return
-        }
-        streamRef.current = stream
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream
-          await videoRef.current.play()
-        }
-      } catch {
-        setCameraError('Camera permission was denied. You can upload a document photo instead.')
-      }
-    }
-
-    startCamera()
-    return () => {
-      cancelled = true
-      stopCamera()
-    }
-  }, [stopCamera])
+    const video = videoRef.current
+    if (!video || !stream) return undefined
+    video.srcObject = stream
+    video.play().catch((err) => console.warn('[camera]', err.name, err.message))
+    return undefined
+  }, [stream])
 
   const commitFields = useCallback((fields) => {
     updateCitizenData(toCitizenRecord(fields))
     setShowCorrection(false)
-    navigateTo('confirm', 'scanner', 'Document details found. Please confirm them.')
+    navigateTo('confirm', null, 'Document details found. Please confirm them.')
   }, [navigateTo, updateCitizenData])
 
   const runOcrOnImage = useCallback(async (image) => {
@@ -147,17 +122,27 @@ function DocumentScanner() {
       <h2>Scan an identity document</h2>
       <p className="lead">Your details stay on this device. Position the document inside the frame.</p>
 
-      <div className={`scan-frame ${cameraError ? 'placeholder' : ''}`}>
-        {cameraError ? (
+      <div className={`scan-frame ${errorInfo ? 'placeholder' : ''}`}>
+        {errorInfo && !stream ? (
           <>
             <span>Camera unavailable</span>
-            <small>{cameraError}</small>
+            <small>{errorInfo.userMessage}</small>
           </>
         ) : (
           <video ref={videoRef} playsInline muted autoPlay aria-label="Document camera preview" />
         )}
       </div>
       <canvas ref={canvasRef} className="hidden-canvas" />
+      <CameraErrorPanel
+        errorInfo={errorInfo}
+        onRetry={retryCamera}
+        onFallback={() => {
+          stopCamera()
+          setButtonNavigation(true)
+          setStatus('Button navigation is on. Enter your details manually to continue.')
+        }}
+        showFallbackAction={shouldOfferButtonFallback}
+      />
 
       {showCorrection && draftFields ? (
         <ManualCorrectionForm
@@ -174,7 +159,7 @@ function DocumentScanner() {
           <p className="scan-status">{isReading ? 'Reading…' : status}</p>
           {ocrError && <p className="error-banner">{ocrError}</p>}
           <div className="action-row">
-            <button className="primary-button" type="button" onClick={captureFrame} disabled={isReading || Boolean(cameraError)}>
+            <button className="primary-button" type="button" onClick={captureFrame} disabled={isReading || !stream}>
               Capture document
             </button>
             <label className="secondary-button upload-button">
@@ -187,6 +172,7 @@ function DocumentScanner() {
             }}>
               Enter details manually
             </button>
+            {buttonNavigation && <span className="scan-status">Use the buttons below to continue without camera access.</span>}
             <button className="secondary-button" type="button" onClick={goHome}>Back</button>
           </div>
         </>

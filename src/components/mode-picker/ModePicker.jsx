@@ -4,12 +4,12 @@ import { useNavigation } from '../../context/NavigationContext'
 import { usePrimaryAction } from '../common/OneKeyNavProvider'
 
 function ModePicker() {
-  const { navigateTo } = useNavigation()
+  const { navigateTo, entryMode } = useNavigation()
   const { clearCitizenData } = useCitizen()
 
   const openScanner = useCallback(() => {
-    navigateTo('scanner', 'scanner')
-  }, [navigateTo])
+    navigateTo('scanner', entryMode || 'scanner')
+  }, [entryMode, navigateTo])
 
   usePrimaryAction(openScanner)
 
@@ -23,7 +23,7 @@ function ModePicker() {
           <span className="mode-icon" aria-hidden="true">✋</span>
           <span>
             <h2>Gesture</h2>
-            <p>Use hand gestures to navigate.</p>
+            <p>Five poses. A guide explains each one the first time you enter.</p>
           </span>
         </button>
         <button type="button" onClick={() => navigateTo('voice', 'voice')} className="mode-card">

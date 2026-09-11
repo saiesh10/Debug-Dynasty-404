@@ -37,14 +37,18 @@ export function useLocalCitizenData() {
   const [matchedSchemes, setMatchedSchemes] = useState(() => readStoredState().matchedSchemes)
   const [selectedScheme, setSelectedScheme] = useState(() => readStoredState().selectedScheme)
 
+  const [cleared, setCleared] = useState(false)
+
   useEffect(() => {
+    if (cleared) return
     window.localStorage.setItem(
       CITIZEN_STORAGE_KEY,
       JSON.stringify({ citizenData, matchedSchemes, selectedScheme }),
     )
-  }, [citizenData, matchedSchemes, selectedScheme])
+  }, [citizenData, matchedSchemes, selectedScheme, cleared])
 
   const updateCitizenData = (data) => {
+    setCleared(false)
     setCitizenData((previous) => ({
       ...previous,
       ...data,
@@ -55,6 +59,7 @@ export function useLocalCitizenData() {
     setCitizenData({ ...EMPTY_CITIZEN })
     setMatchedSchemes([])
     setSelectedScheme(null)
+    setCleared(true)
     clearCitizenSnapshot()
   }
 
