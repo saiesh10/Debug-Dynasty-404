@@ -173,7 +173,7 @@ npm run preview   # serve the production build locally to sanity-check before de
 
 Deployed with Vercel, connected directly to this GitHub repo — every push to `main` auto-deploys.
 
-**Live demo:** `[add your deployed URL here]`
+**Live demo:** `(https://divyang-setu-kohl.vercel.app/)`
 
 Before relying on the deployed link during judging, we tested it in an incognito window on a separate device to confirm camera/mic permission prompts and MediaPipe/WASM loading behave correctly on a completely fresh environment.
 
