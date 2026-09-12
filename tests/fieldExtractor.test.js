@@ -149,6 +149,61 @@ South Delhi, Delhi 110019`,
       address: /Chittaranjan Park.*110019/,
     },
   },
+  {
+    name: 'User Reference Photo: Real PAN Card (Saiesh Babu Upardekar)',
+    text: `आयकर विभाग INCOME TAX DEPARTMENT
+भारत सरकार GOVT. OF INDIA
+स्थायी लेखा संख्या कार्ड Permanent Account Number Card
+ARQPU5816K
+नाम / Name
+SAIESH BABU UPARDEKAR
+पिता का नाम / Father's Name
+BABU J UPARDEKAR
+जन्म की तारीख / Date of Birth
+10/10/2006
+हस्ताक्षर / Signature`,
+    expected: {
+      name: 'SAIESH BABU UPARDEKAR',
+      dob: '10/10/2006',
+      id: 'ARQPU5816K',
+    },
+  },
+  {
+    name: 'User Reference Photo: Real Voter ID (Saiesh Babu Upardekar)',
+    text: `भारत निवडणूक आयोग
+ELECTION COMMISSION OF INDIA
+मतदार फोटो ओळख पत्र / Elector Photo Identity Card
+UOA0547588
+नाव: साईश बाबु उपर्डेकर
+Name: Saiesh Babu Upardekar
+वडिलांचे नाव: बाबु जनार्दन उपर्डेकर
+Father's Name: Babu Janardhan Upardekar
+लिंग / Gender: पुरुष / Male
+Date of Birth / Age: 10-10-2006`,
+    expected: {
+      name: 'Saiesh Babu Upardekar',
+      dob: '10-10-2006',
+      id: 'UOA0547588',
+    },
+  },
+  {
+    name: 'User Reference Photo: Real Aadhaar Card (Saiesh Babu Upardekar)',
+    text: `भारत सरकार
+Government of India
+Saiesh Babu Upardekar
+माता : Babita Babu Upardekar
+Mother : Babita Babu Upardekar
+जन्म तिथि / DOB : 10/10/2006
+पुरुष / Male
+8472 5584 2494
+आपका आधार क्रमांक / Your Aadhaar No. :
+मेरा आधार, मेरी पहचान`,
+    expected: {
+      name: 'Saiesh Babu Upardekar',
+      dob: '10/10/2006',
+      id: '8472 5584 2494',
+    },
+  },
 ]
 
 for (const sample of messySamples) {
@@ -162,3 +217,4 @@ for (const sample of messySamples) {
     if (sample.expected.blankDob) assert.equal(fields.dateOfBirth.value, '')
   })
 }
+

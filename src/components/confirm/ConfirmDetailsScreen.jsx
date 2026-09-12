@@ -72,6 +72,9 @@ function ConfirmDetailsScreen() {
 
         <label>
           Date of Birth
+          {citizenData.dateOfBirth?.includes('Approx') && (
+            <small className="field-hint" style={{ color: '#087f77' }}>Approximate age from Voter ID</small>
+          )}
           <input
             id="field-dob"
             placeholder="DD/MM/YYYY"
@@ -82,12 +85,12 @@ function ConfirmDetailsScreen() {
 
         <label>
           Address
-          {doc?.id === 'pan' && !citizenData.address && (
-            <small className="field-hint">Note: Address is not printed on standard PAN cards</small>
-          )}
+          {doc?.id === 'pan' ? (
+            <small className="field-hint" style={{ color: '#607482' }}>Not printed on standard PAN cards (not required)</small>
+          ) : null}
           <input
             id="field-address"
-            placeholder="House, Street, City, State, PIN"
+            placeholder={doc?.id === 'pan' ? 'Not applicable on PAN card (optional)' : 'House, Street, City, State, PIN'}
             value={citizenData.address || ''}
             onChange={(event) => updateCitizenData({ address: event.target.value })}
           />

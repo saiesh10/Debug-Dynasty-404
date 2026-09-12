@@ -1,72 +1,61 @@
 import {
   ADDRESS_PATTERNS,
+  DL_ID_REGEX,
+  DL_VALIDITY_EXCLUSIONS,
   DOB_PATTERNS,
+  EPIC_ID_REGEX,
   FIELD_LABEL_PATTERNS,
   INDIAN_PIN_PATTERN,
-  ID_PATTERNS,
   INDIAN_STATES,
-  NAME_PATTERNS,
   NAME_BLOCKLIST,
+  NAME_PATTERNS,
+  PAN_ID_REGEX,
   RELATIVE_PREFIXES,
+  VOTER_AGE_PATTERNS,
 } from '../../utils/regexPatterns.js'
 import { classifyDocument, DOCUMENT_TYPES } from './documentClassifier.js'
 
-const FIELD_LIMITS = { name: 80, dateOfBirth: 30, idNumber: 30, address: 220 }
+const FIELD_LIMITS = { name: 80, dateOfBirth: 40, idNumber: 30, address: 220 }
 
 const ANY_FIELD_LABEL = new RegExp(
   Object.values(FIELD_LABEL_PATTERNS).map((pattern) => pattern.source).join('|'),
   'iu'
 )
 
-const STOP_LABEL_LINE = /^(?:father(?:'s)?|mother(?:'s)?|husband(?:'s)?|guardian|c\/o|s\/o|d\/o|w\/o|s\/w\/d|gender|sex|dob|d\.o\.b|008|date\s*of\s*birth|जन्म|पिता|माता|पति|लिंग|mobile|phone|uid|aadhaar|pan|epic|dl|voter|signature|हस्ताक्षर|issue|expiry)\b/i
+const STOP_LABEL_LINE = /^(?:father(?:'s)?|mother(?:'s)?|husband(?:'s)?|guardian|s\/d\/w|s\/w\/d|c\/o|s\/o|d\/o|w\/o|gender|sex|dob|d\.o\.b|008|date\s*of\s*birth|जन्म|पिता|माता|पति|लिंग|mobile|phone|uid|aadhaar|pan|epic|dl|voter|signature|हस्ताक्षर|issue|expiry|valid)\b/i
 
-function cleanValue(value) {
+const COMPREHENSIVE_NAME_LABEL = /^(?:\d+[.)\s]*)?(?:applicant\s*name|full\s*name|name\s*of\s*(?:holder|applicant|cardholder)|elector(?:'s)?\s*name|मतदाता\s*का\s*नाम|निर्वाचक\s*का\s*नाम|धारक\s*का\s*नाम|आवेदक\s*का\s*नाम|\bname\b|\bnaam\b|नाम|नांव)(?:\s*[/|\\]\s*[\u0900-\u097F\w\s]+)?\s*[:#=-]?\s*(.*)$/iu
+
+export function cleanValue(value) {
   return String(value || '')
-    .replace(/^\s*[:#=-]\s*/, '')
+    .replace(/^[:#=-]+\s*/, '')
     .replace(/\s+/g, ' ')
     .trim()
 }
 
-function looksLikeFieldLabel(line) {
+export function sanitizeName(name) {
+  return String(name || '')
+    .replace(/^[^a-zA-Z\u0900-\u097F]+|[^a-zA-Z\u0900-\u097F.]+$/gu, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+export function looksLikeFieldLabel(line) {
   const trimmed = String(line || '').trim()
+  if (!trimmed) return false
+  if (INDIAN_PIN_PATTERN.test(trimmed)) return false
+  if (INDIAN_STATES.some((state) => trimmed.toLowerCase().includes(state.toLowerCase()))) return false
+  if (ANY_FIELD_LABEL.test(trimmed)) return true
+  if (STOP_LABEL_LINE.test(trimmed)) return true
+  return /^[\p{L}][\p{L} .]{1,30}\s*[:#=]/u.test(trimmed)
+}
+
+export function isRelativeLine(line) {
+  const cleaned = cleanValue(line).toLowerCase()
   return (
-    ANY_FIELD_LABEL.test(trimmed) ||
-    STOP_LABEL_LINE.test(trimmed) ||
-    /^[\p{L}][\p{L} .]{1,30}\s*[:#=-]/u.test(trimmed)
+    RELATIVE_PREFIXES.test(cleaned) ||
+    /\b(?:father(?:'s)?|mother(?:'s)?|husband(?:'s)?|wife(?:'s)?|guardian(?:'s)?|son\s*of|daughter\s*of|wife\s*of|care\s*of|s\/o|d\/o|w\/o|c\/o|s\/d\/w|s\/w\/d|s\/w|s\/d|f\/n|m\/n|h\/n|पिता|पति|माता|संबंधी)\b/i.test(cleaned)
   )
-}
-
-function labeledValue(text, labelPattern, multiline = false) {
-  const lines = text.split(/\r?\n/).map((line) => line.trim()).filter(Boolean)
-
-  for (let index = 0; index < lines.length; index += 1) {
-    const line = lines[index]
-    const match = line.match(labelPattern)
-    if (!match) continue
-
-    const values = []
-    const inlineValue = cleanValue(line.slice(match.index + match[0].length))
-    if (inlineValue) values.push(inlineValue)
-
-    for (let nextIndex = index + 1; nextIndex < lines.length && (multiline || values.length === 0); nextIndex += 1) {
-      if (looksLikeFieldLabel(lines[nextIndex])) break
-      values.push(cleanValue(lines[nextIndex]))
-      if (!multiline) break
-      if (values.join(' ').length >= 180) break
-    }
-
-    if (values.length) return values.join(' ').slice(0, 180).trim()
-  }
-
-  return ''
-}
-
-function firstPatternMatch(text, patterns) {
-  for (const pattern of patterns) {
-    const match = text.match(pattern)
-    if (match?.[1]) return match[1].replace(/\s+/g, ' ').trim()
-  }
-  return ''
 }
 
 const CRITICAL_BLOCKED_WORDS = new Set([
@@ -78,23 +67,24 @@ const CRITICAL_BLOCKED_WORDS = new Set([
   'father', 'mother', 'husband', 'wife', 'guardian', 'relative', 'doctor',
   'signature', 'valid', 'validity', 'issue', 'expiry', 'expired', 'date',
   'address', 'resident', 'enrolment', 'helpdesk', 'tollfree', 'www', 'gov',
-  'bharat', 'nirvachan', 'aayog',
+  'bharat', 'nirvachan', 'aayog', 'transport', 'vehicles', 'permanent', 'account',
+  'number', 'holder', 'cardholder', 'applicant', 'motor',
   'भारत', 'सरकार', 'आधार', 'पहचान', 'पत्र', 'निर्वाचन', 'आयकर', 'प्रमाणपत्र',
   'दिव्यांगता', 'राशन', 'लिंग', 'पुरुष', 'महिला', 'पिता', 'पति', 'माता',
-  'name', 'applicant', 'holder', 'of'
+  'name', 'of'
 ])
 
 export function isNameCandidate(value) {
-  const cleaned = cleanValue(value)
-  if (!cleaned || cleaned.length < 2 || cleaned.length > FIELD_LIMITS.name) return false
+  const sanitized = sanitizeName(value)
+  if (!sanitized || sanitized.length < 2 || sanitized.length > FIELD_LIMITS.name) return false
 
-  if (RELATIVE_PREFIXES.test(cleaned)) return false
-  if (/\d|@|\.com|\.in|\.org|www/i.test(cleaned)) return false
+  if (isRelativeLine(sanitized)) return false
+  if (/\d|@|\.com|\.in|\.org|www/i.test(sanitized)) return false
 
-  const words = cleaned.split(/\s+/).filter(Boolean)
+  const words = sanitized.split(/\s+/).filter(Boolean)
   if (words.length < 1 || words.length > 5) return false
 
-  // Reject if any word matches the blocked words
+  // Reject if any word matches blocked words
   for (const w of words) {
     const normWord = w.toLowerCase().replace(/[^a-z\u0900-\u097F]/gu, '')
     if (CRITICAL_BLOCKED_WORDS.has(normWord)) return false
@@ -217,363 +207,848 @@ export function verhoeffIsValid(value) {
   return checksum === 0
 }
 
-function extractIdFromSnippet(raw, docType) {
-  const text = String(raw || '')
-  const variants = [
-    text,
-    text.replace(/[Oo]/g, '0').replace(/[Il]/g, '1')
-  ]
+/**
+ * Extracts a multiline address block starting from an address label,
+ * stopping at 6-digit PIN code, blank line, or next section header.
+ */
+function extractAddressBlock(lines) {
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]
+    const match = line.match(/(?:residential\s*address|residence\s*address|permanent\s*address|\baddress\b|\baddr\b|पता|निवास)(?:\s*[/|\\]\s*[\u0900-\u097F\w\s]+)?\s*[:#=-]?\s*(.*)/i)
+    if (!match) continue
 
-  for (const candidateText of variants) {
-    for (const pattern of ID_PATTERNS) {
-      const match = candidateText.match(pattern)
-      if (!match?.[1]) continue
-      const val = cleanValue(match[1]).toUpperCase()
-      const normalizedChars = val.replace(/[\s-]+/g, '')
-
-      // Aadhaar check
-      if (/^\d{12}$/.test(normalizedChars)) {
-        if (/^(\d)\1{11}$/.test(normalizedChars) || normalizedChars === '111122223333') continue
-        const formatted = `${normalizedChars.slice(0, 4)} ${normalizedChars.slice(4, 8)} ${normalizedChars.slice(8, 12)}`
-        if (verhoeffIsValid(normalizedChars)) {
-          return formatted
-        }
-        // If document is classified as Aadhaar or contains Aadhaar keywords, accept formatted ID
-        if (docType?.id === 'aadhaar' || /aadhaar|aadhar|uidai|आधार/i.test(text)) {
-          return formatted
-        }
-        continue
-      }
-
-      // PAN check (with OCR normalization for common substitutions)
-      if (/^[A-Z0-9]{10}$/i.test(normalizedChars)) {
-        const panCandidate =
-          normalizedChars.slice(0, 5).replace(/0/g, 'O').replace(/1/g, 'I') +
-          normalizedChars.slice(5, 9).replace(/O/g, '0').replace(/I/g, '1').replace(/B/g, '8').replace(/S/g, '5') +
-          normalizedChars.slice(9, 10).replace(/0/g, 'O').replace(/1/g, 'I')
-        if (/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(panCandidate)) {
-          return panCandidate
-        }
-      }
-
-      // Driving licence check
-      if (/^[A-Z]{2}[-\s]?[0-9]{2}[-\s]?(?:19|20)[0-9]{2}[-\s]?[0-9]{7}$/i.test(val)) return val
-      if (/^[A-Z]{2}[0-9]{2}\s*[0-9]{11}$/i.test(val)) return val
-      if (/^[A-Z]{2}[0-9]{2}\s*[0-9]{4,14}$/i.test(val)) return val
-
-      // Election ID (Voter ID) check (EPIC: 3 letters + 7 digits)
-      if (/^[A-Z]{3}[0-9]{7}$/i.test(val)) return val
-
-      // General format
-      if (/^[A-Z]{1,3}[0-9]{6,16}$/i.test(val)) {
-        if (/^\d{6}$/.test(val) || /^\d{10}$/.test(val)) continue
-        return val
+    const addrLines = []
+    const inline = cleanValue(match[1])
+    if (inline && !looksLikeFieldLabel(inline) && !isRelativeLine(inline)) {
+      addrLines.push(inline)
+      if (INDIAN_PIN_PATTERN.test(inline)) {
+        return inline.slice(0, FIELD_LIMITS.address)
       }
     }
+
+    for (let j = i + 1; j < lines.length; j++) {
+      const nextLine = lines[j].trim()
+      if (!nextLine) break // blank line terminates block
+
+      // Stop if a completely different section header is found
+      if (
+        /^(?:valid|issue|expiry|blood\s*group|class|cov|authoris|dl\s*no|epic\s*no|pan|aadhaar|signature|elector|father|mother|husband|sex|gender|dob|date\s*of\s*birth|जन्म|पिता|माता|लिंग|हस्ताक्षर)\b/i.test(
+          nextLine
+        )
+      ) {
+        break
+      }
+
+      addrLines.push(cleanValue(nextLine))
+
+      // Complete when line reaches Indian PIN code
+      if (INDIAN_PIN_PATTERN.test(nextLine)) {
+        break
+      }
+
+      if (addrLines.join(' ').length >= 180) break
+    }
+
+    const fullAddr = addrLines.join(' ').replace(/\s+,/g, ',').replace(/\s+/g, ' ').trim()
+    if (fullAddr.length >= 10) {
+      return fullAddr.slice(0, FIELD_LIMITS.address)
+    }
   }
+
   return ''
 }
 
-function scoreNameCandidates(text, lines, docType) {
-  const candidates = []
+// ==========================================
+// 1. PAN CARD EXTRACTION PIPELINE
+// ==========================================
+function extractPanFields(text, lines) {
+  let idNumber = ''
+  let idReason = ''
+  let idScore = 0
 
-  // Layer 1: Strict labeled applicant name or To: addressee
+  // 1. PAN ID: 5 letters + 4 digits + 1 letter (with OCR repairs)
+  const panMatches = text.match(/\b([A-Z0-9]{10})\b/gi) || []
+  for (const candidate of panMatches) {
+    const rawClean = candidate.toUpperCase()
+    // Perform OCR normalization for letter vs digit substitution in PAN positions
+    const fixed =
+      rawClean.slice(0, 5).replace(/0/g, 'O').replace(/1/g, 'I') +
+      rawClean.slice(5, 9).replace(/O/g, '0').replace(/I/g, '1').replace(/B/g, '8').replace(/S/g, '5') +
+      rawClean.slice(9, 10).replace(/0/g, 'O').replace(/1/g, 'I')
+
+    if (PAN_ID_REGEX.test(fixed)) {
+      idNumber = fixed
+      idReason = `Matched PAN format (5 letters + 4 digits + 1 letter): "${fixed}"`
+      idScore = 98
+      break
+    }
+  }
+
+  // 2. PAN Name:
+  // Must strictly exclude Father's Name ("Father's Name: ...")
+  let name = ''
+  let nameReason = ''
+  let nameScore = 0
+
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i]
-    if (RELATIVE_PREFIXES.test(line)) continue
+    if (isRelativeLine(line)) continue
+    if (i > 0 && isRelativeLine(lines[i - 1])) continue // Never take value directly under Father's Name: label
 
-    // Handle To: addressee line (common on Aadhaar)
-    const toMatch = line.match(/^to\s*[:#=-]?\s*(.*)$/i)
-    if (toMatch) {
-      const inlineTo = cleanValue(toMatch[1])
-      if (inlineTo && isNameCandidate(inlineTo)) {
-        candidates.push({
-          value: inlineTo.slice(0, FIELD_LIMITS.name),
-          score: 95,
-          rule: 'To: addressee line',
-          reason: `Found addressee name "${inlineTo}" on To: line`,
-        })
-      } else if (!inlineTo && i + 1 < lines.length) {
-        const nextLine = cleanValue(lines[i + 1])
-        if (!looksLikeFieldLabel(nextLine) && isNameCandidate(nextLine)) {
-          candidates.push({
-            value: nextLine.slice(0, FIELD_LIMITS.name),
-            score: 93,
-            rule: 'To: next line addressee',
-            reason: `Found addressee name "${nextLine}" after To: header`,
-          })
-        }
-      }
-    }
-
-    const match = line.match(FIELD_LABEL_PATTERNS.name)
-    if (match) {
-      const inline = cleanValue(line.slice(match.index + match[0].length))
-      if (inline && isNameCandidate(inline)) {
-        candidates.push({
-          value: inline.slice(0, FIELD_LIMITS.name),
-          score: /applicant|elector|holder|धारक|आवेदक|मतदाता/i.test(match[0]) ? 98 : 92,
-          rule: `labeledValue (inline: "${match[0]}")`,
-          reason: `Strict label match "${match[0]}" with valid name "${inline}"`,
-        })
+    const labelMatch = line.match(COMPREHENSIVE_NAME_LABEL)
+    if (labelMatch) {
+      const inline = cleanValue(labelMatch[1])
+      if (inline && isNameCandidate(inline) && !isRelativeLine(inline)) {
+        name = sanitizeName(inline).slice(0, FIELD_LIMITS.name)
+        nameReason = `Matched explicit "${labelMatch[0]}" label: "${name}"`
+        nameScore = 98
+        break
       } else if (!inline && i + 1 < lines.length) {
         const nextLine = cleanValue(lines[i + 1])
-        if (!looksLikeFieldLabel(nextLine) && isNameCandidate(nextLine)) {
-          candidates.push({
-            value: nextLine.slice(0, FIELD_LIMITS.name),
-            score: /applicant|elector|holder|धारक|आवेदक|मतदाता/i.test(match[0]) ? 94 : 88,
-            rule: `labeledValue (next line after "${match[0]}")`,
-            reason: `Strict label on line ${i}, value on line ${i + 1}: "${nextLine}"`,
-          })
+        if (!looksLikeFieldLabel(nextLine) && isNameCandidate(nextLine) && !isRelativeLine(nextLine)) {
+          name = sanitizeName(nextLine).slice(0, FIELD_LIMITS.name)
+          nameReason = `Line following "${labelMatch[0]}" label: "${name}"`
+          nameScore = 95
+          break
         }
       }
     }
   }
 
-  // Layer 2: Positional heuristic (top lines of card below headers)
-  for (let i = 0; i < Math.min(10, lines.length); i++) {
-    const line = cleanValue(lines[i])
-    if (RELATIVE_PREFIXES.test(line) || looksLikeFieldLabel(line)) continue
-    if (isNameCandidate(line)) {
-      let score = 65 - i * 2
-      const prevLine = i > 0 ? lines[i - 1].toLowerCase() : ''
-      const nextLine = i + 1 < lines.length ? lines[i + 1].toLowerCase() : ''
-      if (/government|india|republic|income|tax|भारत|सरकार|permanent\s*account/i.test(prevLine)) score += 20
-      if (/dob|birth|year|008|जन्म|female|male|gender|आधार|aadhaar|father|माता|पिता/i.test(nextLine)) score += 15
-      candidates.push({
-        value: line.slice(0, FIELD_LIMITS.name),
-        score,
-        rule: `positional heuristic (line ${i + 1})`,
-        reason: `Top-of-card line "${line}" in name position`,
-      })
-    }
-  }
+  // PAN Name Fallback:
+  // First all-caps line >= 2 words excluding header blocklist, before Father's Name / DOB
+  if (!name) {
+    for (let i = 0; i < lines.length; i++) {
+      const line = cleanValue(lines[i])
+      if (isRelativeLine(line) || looksLikeFieldLabel(line)) continue
+      if (i > 0 && isRelativeLine(lines[i - 1])) continue
+      if (PAN_ID_REGEX.test(line.replace(/\s+/g, ''))) continue
 
-  // Layer 3: Regex pattern scan fallback
-  for (const pattern of NAME_PATTERNS) {
-    const match = text.match(pattern)
-    if (match?.[1]) {
-      const val = cleanValue(match[1])
-      if (!RELATIVE_PREFIXES.test(val) && isNameCandidate(val)) {
-        candidates.push({
-          value: val.slice(0, FIELD_LIMITS.name),
-          score: 60,
-          rule: 'NAME_PATTERNS fallback',
-          reason: `Matched regex pattern: "${val}"`,
-        })
+      if (isNameCandidate(line)) {
+        name = sanitizeName(line).slice(0, FIELD_LIMITS.name)
+        nameReason = `First all-caps candidate line on PAN card: "${name}"`
+        nameScore = 80
+        break
       }
     }
   }
 
-  if (!candidates.length) return null
-  candidates.sort((a, b) => b.score - a.score)
-  return candidates[0]
-}
+  // 3. PAN Date of Birth:
+  let dateOfBirth = ''
+  let dobReason = ''
+  let dobScore = 0
 
-function scoreDobCandidates(text, lines, docType) {
-  const candidates = []
-
-  // Layer 1: Strict labeled DOB
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i]
-    if (/(?:issue|expiry|valid\s*(?:from|till|until)|निर्गमन|समाप्ति|जारी)/i.test(line)) continue
+    const match = line.match(/(?:date\s*of\s*birth|dob|जन्म\s*तिथि|जन्म\s*तारीख)(?:\s*[/|\\]\s*[\u0900-\u097F\w\s]+)?\s*[:-]?\s*(.*)/i)
+    if (match) {
+      let rawVal = cleanValue(match[1])
+      if (!rawVal && i + 1 < lines.length && !looksLikeFieldLabel(lines[i + 1])) {
+        rawVal = cleanValue(lines[i + 1])
+      }
+      if (rawVal) {
+        const norm = normalizeDateCandidate(rawVal)
+        const dateSub = norm.match(/\b\d{1,2}[/.-]\d{1,2}[/.-]\d{4}\b/)?.[0] || norm
+        if (validDate(dateSub)) {
+          dateOfBirth = formatStandardDate(dateSub)
+          dobReason = `Labeled DOB on PAN card: "${dateOfBirth}"`
+          dobScore = 98
+          break
+        }
+      }
+    }
+  }
+
+  // DOB fallback scan
+  if (!dateOfBirth) {
+    for (const pattern of DOB_PATTERNS) {
+      const match = text.match(pattern)
+      if (match?.[1]) {
+        const norm = normalizeDateCandidate(match[1])
+        if (validDate(norm)) {
+          dateOfBirth = formatStandardDate(norm)
+          dobReason = `Matched DOB pattern on PAN card: "${dateOfBirth}"`
+          dobScore = 85
+          break
+        }
+      }
+    }
+  }
+
+  // 4. PAN Address:
+  // Explicitly NOT present on standard PAN card
+  const addressResult = {
+    value: '',
+    score: 100,
+    confidence: 100,
+    rule: 'PAN_NO_ADDRESS',
+    reason: 'Address is not available on PAN card',
+    notApplicable: true,
+  }
+
+  return {
+    name: { value: name, score: nameScore, rule: 'PAN_NAME', reason: nameReason },
+    dateOfBirth: { value: dateOfBirth, score: dobScore, rule: 'PAN_DOB', reason: dobReason },
+    idNumber: { value: idNumber, score: idScore, rule: 'PAN_ID', reason: idReason },
+    address: addressResult,
+  }
+}
+
+// ==========================================
+// 2. VOTER ID (EPIC) EXTRACTION PIPELINE
+// ==========================================
+function extractVoterFields(text, lines) {
+  let idNumber = ''
+  let idReason = ''
+  let idScore = 0
+
+  // 1. Voter ID / EPIC:
+  // Check labeled lines first (e.g. Voter ID: WB12 45678901 or EPIC No: ABC1234567)
+  for (const line of lines) {
+    const labeledId = line.match(/(?:voter\s*id|epic\s*no|epic)\s*[:\-]?\s*([A-Z0-9\s/-]{6,20})/i)
+    if (labeledId?.[1]) {
+      const clean = cleanValue(labeledId[1])
+      if (clean.length >= 6) {
+        idNumber = clean
+        idReason = `Matched labeled Voter ID: "${clean}"`
+        idScore = 98
+        break
+      }
+    }
+  }
+
+  if (!idNumber) {
+    const epicMatch = text.match(/\b([A-Z]{3}[0-9]{7})\b/i) ||
+                      text.match(/\b([A-Z]{1,3}[0-9]{1,4}\s+[0-9]{6,10})\b/i) ||
+                      text.match(/\b([A-Z]{2,3}[\s/]?[0-9]{7,8})\b/i)
+    if (epicMatch?.[1]) {
+      const raw = epicMatch[1].trim()
+      const cleanId = raw.replace(/[\s/]/g, '').toUpperCase()
+      if (EPIC_ID_REGEX.test(cleanId)) {
+        idNumber = cleanId
+        idReason = `Matched EPIC format (3 letters + 7 digits): "${cleanId}"`
+        idScore = 98
+      } else {
+        idNumber = raw
+        idReason = `Matched Voter ID pattern: "${raw}"`
+        idScore = 90
+      }
+    }
+  }
+
+  // 2. Voter Name:
+  // Prefer Elector's Name or Name, strictly excluding Father's / Husband's Name
+  let name = ''
+  let nameReason = ''
+  let nameScore = 0
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]
+    if (isRelativeLine(line)) continue
+    if (i > 0 && isRelativeLine(lines[i - 1])) continue // Skip lines below Father's / Husband's Name label
+
+    const match = line.match(COMPREHENSIVE_NAME_LABEL)
+    if (match) {
+      const inline = cleanValue(match[1])
+      if (inline && isNameCandidate(inline) && !isRelativeLine(inline)) {
+        name = sanitizeName(inline).slice(0, FIELD_LIMITS.name)
+        nameReason = `Matched labeled elector name: "${name}"`
+        nameScore = 98
+        break
+      } else if (!inline && i + 1 < lines.length) {
+        const nextLine = cleanValue(lines[i + 1])
+        if (!looksLikeFieldLabel(nextLine) && isNameCandidate(nextLine) && !isRelativeLine(nextLine)) {
+          name = sanitizeName(nextLine).slice(0, FIELD_LIMITS.name)
+          nameReason = `Line following elector name label: "${name}"`
+          nameScore = 95
+          break
+        }
+      }
+    }
+  }
+
+  if (!name) {
+    for (let i = 0; i < Math.min(8, lines.length); i++) {
+      const line = cleanValue(lines[i])
+      if (isRelativeLine(line) || looksLikeFieldLabel(line)) continue
+      if (i > 0 && isRelativeLine(lines[i - 1])) continue
+      if (EPIC_ID_REGEX.test(line.replace(/\s+/g, ''))) continue
+      if (isNameCandidate(line)) {
+        name = sanitizeName(line).slice(0, FIELD_LIMITS.name)
+        nameReason = `Positional name candidate on Voter card: "${name}"`
+        nameScore = 75
+        break
+      }
+    }
+  }
+
+  // 3. Voter DOB / Age:
+  let dateOfBirth = ''
+  let dobReason = ''
+  let dobScore = 0
+  let isApproximate = false
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]
+    // Ignore qualifying age dates like "Age as on 01.01.2024" or issue/revision dates
+    if (/(?:as\s*on|qualifying|issue|revision|revised)/i.test(line)) continue
+
+    const dobMatch = line.match(/(?:date\s*of\s*birth|dob|birth\s*date|year\s*of\s*birth|जन्म\s*तिथि|जन्म\s*वर्ष|जन्म\s*तारीख)(?:\s*[/|\\]\s*[\u0900-\u097F\w\s]+)?\s*[:-]?\s*(.*)/i)
+    if (dobMatch) {
+      let rawVal = cleanValue(dobMatch[1])
+      if (!rawVal && i + 1 < lines.length && !looksLikeFieldLabel(lines[i + 1])) {
+        rawVal = cleanValue(lines[i + 1])
+      }
+      if (rawVal) {
+        const norm = normalizeDateCandidate(rawVal)
+        const dateSub = norm.match(/\b(?:\d{1,2}[/.-]\d{1,2}[/.-]\d{2,4}|(?:19|20)\d{2})\b/)?.[0] || norm
+        if (validDate(dateSub)) {
+          dateOfBirth = formatStandardDate(dateSub)
+          dobReason = `Labeled DOB on Voter card: "${dateOfBirth}"`
+          dobScore = 98
+          break
+        }
+      }
+    }
+  }
+
+  // Fallback: Older Voter cards only have "Age" not DOB
+  if (!dateOfBirth) {
+    for (const pattern of VOTER_AGE_PATTERNS) {
+      const match = text.match(pattern)
+      if (match?.[1]) {
+        const age = Number(match[1])
+        if (age >= 18 && age <= 120) {
+          const currentYear = new Date().getFullYear()
+          const approxYear = currentYear - age
+          dateOfBirth = `Approx. ${approxYear} (Age: ${age})`
+          dobReason = `Extracted Age ${age} from Voter ID, calculated approximate birth year ${approxYear}`
+          dobScore = 88
+          isApproximate = true
+          break
+        }
+      }
+    }
+  }
+
+  // Fallback pattern match for Year of Birth or DOB
+  if (!dateOfBirth) {
+    for (const pattern of DOB_PATTERNS) {
+      const match = text.match(pattern)
+      if (match?.[1]) {
+        const norm = normalizeDateCandidate(match[1])
+        if (validDate(norm)) {
+          dateOfBirth = formatStandardDate(norm)
+          dobReason = `Matched DOB/YOB pattern on Voter card: "${dateOfBirth}"`
+          dobScore = 84
+          break
+        }
+      }
+    }
+  }
+
+  // 4. Voter Address (often on reverse side):
+  let address = extractAddressBlock(lines)
+  let addressReason = ''
+  let addressScore = 0
+
+  if (address) {
+    addressReason = `Extracted address block ending in PIN: "${address}"`
+    addressScore = 96
+  } else {
+    const addrMatch = text.match(/(?:address|पता|निवास)\s*[:\-]?\s*([\s\S]{10,180}?\d{6})/i)
+    if (addrMatch?.[1]) {
+      const cleanedAddr = cleanValue(addrMatch[1].replace(/\r?\n/g, ' '))
+      if (cleanedAddr.length >= 10) {
+        address = cleanedAddr.slice(0, FIELD_LIMITS.address)
+        addressReason = `Extracted address regex match: "${address}"`
+        addressScore = 92
+      }
+    }
+  }
+
+  return {
+    name: { value: name, score: nameScore, rule: 'VOTER_NAME', reason: nameReason },
+    dateOfBirth: { value: dateOfBirth, score: dobScore, rule: 'VOTER_DOB', reason: dobReason, isApproximate },
+    idNumber: { value: idNumber, score: idScore, rule: 'VOTER_ID', reason: idReason },
+    address: { value: address, score: addressScore, rule: 'VOTER_ADDRESS', reason: addressReason },
+  }
+}
+
+// ==========================================
+// 3. DRIVING LICENCE (DL) EXTRACTION PIPELINE
+// ==========================================
+function extractDlFields(text, lines) {
+  let idNumber = ''
+  let idReason = ''
+  let idScore = 0
+
+  // 1. DL ID: State code (2 letters) + RTO + digits (normalize spaces/hyphens, length 15-16 chars)
+  for (const line of lines) {
+    const dlMatch = line.match(/(?:dl\s*no|licen[cs]e\s*no|dl\b|no)\s*[:\-]?\s*([A-Z]{2}[-\s]?[0-9]{2}[-\s]?[0-9A-Z\s-]{8,15})/i) ||
+                    line.match(/\b([A-Z]{2}[-\s]?[0-9]{2}[-\s]?(?:19|20)[0-9]{2}[-\s]?[0-9]{7})\b/i) ||
+                    line.match(/\b([A-Z]{2}[0-9]{2}[\s\-]?[0-9]{11})\b/i)
+
+    if (dlMatch?.[1]) {
+      const raw = dlMatch[1].trim()
+      const normalized = raw.replace(/[\s-]+/g, '').toUpperCase()
+      // Valid DL length is typically 15-16 alphanumeric chars starting with 2 letters + 2 digits
+      if (/^[A-Z]{2}[0-9]{2}[0-9]{11}$/.test(normalized) || /^[A-Z]{2}[0-9]{2}(?:19|20)[0-9]{9}$/.test(normalized) || /^[A-Z]{2}[0-9]{12,14}$/.test(normalized)) {
+        idNumber = raw
+        idReason = `Matched DL format with state/RTO code: "${idNumber}"`
+        idScore = 98
+        break
+      }
+    }
+  }
+
+  if (!idNumber) {
+    const generalMatch = text.match(/\b([A-Z]{2}[0-9]{2}\s*[0-9]{11})\b/i) || text.match(/\b([A-Z]{2}[-\s]?[0-9]{2}[-\s]?(?:19|20)[0-9]{2}[-\s]?[0-9]{7})\b/i)
+    if (generalMatch?.[1]) {
+      idNumber = generalMatch[1].trim()
+      idReason = `Found DL number pattern in text: "${idNumber}"`
+      idScore = 92
+    }
+  }
+
+  // 2. DL Name:
+  // Must exclude parent's name "S/D/W of" or relative lines
+  let name = ''
+  let nameReason = ''
+  let nameScore = 0
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]
+    if (isRelativeLine(line)) continue
+    if (i > 0 && isRelativeLine(lines[i - 1])) continue
+
+    const nameMatch = line.match(COMPREHENSIVE_NAME_LABEL)
+    if (nameMatch) {
+      let inline = cleanValue(nameMatch[1])
+      // If user's name is followed on the same line by S/D/W of, separate parent's name!
+      const relativeSplit = inline.split(/\b(?:s\/d\/w(?:\s*of)?|s\/w\/d(?:\s*of)?|s\/o|d\/o|w\/o|c\/o|son\s*of|daughter\s*of|wife\s*of|father(?:'s)?|husband(?:'s)?)\b/i)
+      inline = cleanValue(relativeSplit[0])
+
+      if (inline && !isRelativeLine(inline) && isNameCandidate(inline)) {
+        name = sanitizeName(inline).slice(0, FIELD_LIMITS.name)
+        nameReason = `Matched "${nameMatch[0]}" label on DL: "${name}"`
+        nameScore = 98
+        break
+      } else if (!inline && i + 1 < lines.length) {
+        const nextLine = cleanValue(lines[i + 1])
+        if (!looksLikeFieldLabel(nextLine) && !isRelativeLine(nextLine) && isNameCandidate(nextLine)) {
+          name = sanitizeName(nextLine).slice(0, FIELD_LIMITS.name)
+          nameReason = `Line following "${nameMatch[0]}" on DL: "${name}"`
+          nameScore = 95
+          break
+        }
+      }
+    }
+  }
+
+  // 3. DL Date of Birth:
+  // Disambiguate from "Valid From / Till" / "Issue Date" / "Expiry Date"
+  let dateOfBirth = ''
+  let dobReason = ''
+  let dobScore = 0
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]
+    // Directly capture the date immediately following DOB / Date of birth keyword
+    const match = line.match(/(?:d\.?\s*o\.?\s*b\.?|date\s*of\s*birth|birth\s*date|जन्म\s*तिथि|जन्म\s*तारीख)(?:\s*[/|\\]\s*[\u0900-\u097F\w\s]+)?\s*[:-]?\s*([0-9]{1,2}[/.-][0-9]{1,2}[/.-][0-9]{2,4}|[0-9]{1,2}\s+[A-Za-z]{3,12}\s+[0-9]{4})/i)
+    if (match?.[1]) {
+      const dateStr = cleanValue(match[1])
+      const norm = normalizeDateCandidate(dateStr)
+      if (validDate(norm)) {
+        dateOfBirth = formatStandardDate(norm)
+        dobReason = `Disambiguated DOB from validity on DL: "${dateOfBirth}"`
+        dobScore = 98
+        break
+      }
+    } else {
+      // If label on this line without date, check next line
+      const labelOnly = line.match(/(?:d\.?\s*o\.?\s*b\.?|date\s*of\s*birth|birth\s*date|जन्म\s*तिथि)\s*[:-]?\s*$/i)
+      if (labelOnly && i + 1 < lines.length && !DL_VALIDITY_EXCLUSIONS.test(lines[i + 1])) {
+        const nextLineVal = cleanValue(lines[i + 1])
+        const norm = normalizeDateCandidate(nextLineVal)
+        const dateSub = norm.match(/\b(?:\d{1,2}[/.-]\d{1,2}[/.-]\d{2,4}|\d{1,2}\s+[A-Za-z]{3,12}\s+\d{4})\b/)?.[0]
+        if (dateSub && validDate(dateSub)) {
+          dateOfBirth = formatStandardDate(dateSub)
+          dobReason = `DOB on next line after label on DL: "${dateOfBirth}"`
+          dobScore = 95
+          break
+        }
+      }
+    }
+  }
+
+  // 4. DL Address:
+  let address = extractAddressBlock(lines)
+  let addressReason = ''
+  let addressScore = 0
+
+  if (address) {
+    addressReason = `Extracted address block ending in PIN: "${address}"`
+    addressScore = 96
+  } else {
+    const addrMatch = text.match(/(?:address|पता|निवास)\s*[:\-]?\s*([\s\S]{10,180}?\d{6})/i)
+    if (addrMatch?.[1]) {
+      const cleanedAddr = cleanValue(addrMatch[1].replace(/\r?\n/g, ' '))
+      if (cleanedAddr.length >= 10) {
+        address = cleanedAddr.slice(0, FIELD_LIMITS.address)
+        addressReason = `Extracted address regex match: "${address}"`
+        addressScore = 92
+      }
+    }
+  }
+
+  return {
+    name: { value: name, score: nameScore, rule: 'DL_NAME', reason: nameReason },
+    dateOfBirth: { value: dateOfBirth, score: dobScore, rule: 'DL_DOB', reason: dobReason },
+    idNumber: { value: idNumber, score: idScore, rule: 'DL_ID', reason: idReason },
+    address: { value: address, score: addressScore, rule: 'DL_ADDRESS', reason: addressReason },
+  }
+}
+
+// ==========================================
+// 4. AADHAAR CARD EXTRACTION PIPELINE
+// ==========================================
+function extractAadhaarFields(text, lines) {
+  let idNumber = ''
+  let idReason = ''
+  let idScore = 0
+
+  // 12-digit Aadhaar UID with Verhoeff validation
+  // Scan line by line to prevent cross-line concatenation with dates or enrollment numbers
+  for (const line of lines) {
+    if (/helpdesk|tollfree|enrolment|enrollment|phone|mobile|1947/i.test(line)) continue
+
+    const lineMatch = line.match(/\b([0-9]{4}[ \t]+[0-9]{4}[ \t]+[0-9]{4})\b/) || line.match(/\b([0-9]{12})\b/)
+    if (lineMatch?.[1]) {
+      const digits = lineMatch[1].replace(/\s+/g, '')
+      if (/^(\d)\1{11}$/.test(digits) || digits === '111122223333') continue
+      const formatted = `${digits.slice(0, 4)} ${digits.slice(4, 8)} ${digits.slice(8, 12)}`
+      if (verhoeffIsValid(digits)) {
+        idNumber = formatted
+        idReason = `12-digit Aadhaar number passed Verhoeff checksum: "${formatted}"`
+        idScore = 99
+        break
+      } else if (!idNumber) {
+        idNumber = formatted
+        idReason = `12-digit Aadhaar number matched format: "${formatted}"`
+        idScore = 90
+      }
+    }
+  }
+
+  // Aadhaar Name: To: addressee or labeled or top lines below header
+  let name = ''
+  let nameReason = ''
+  let nameScore = 0
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]
+    if (isRelativeLine(line)) continue
+    if (i > 0 && isRelativeLine(lines[i - 1])) continue
+
+    const toMatch = line.match(/^to\s*[:#=-]?\s*(.*)$/i)
+    if (toMatch) {
+      const inline = cleanValue(toMatch[1])
+      if (inline && isNameCandidate(inline) && !isRelativeLine(inline)) {
+        name = sanitizeName(inline).slice(0, FIELD_LIMITS.name)
+        nameReason = `Found addressee on To: line: "${name}"`
+        nameScore = 96
+        break
+      } else if (!inline && i + 1 < lines.length) {
+        const nextLine = cleanValue(lines[i + 1])
+        if (!looksLikeFieldLabel(nextLine) && isNameCandidate(nextLine) && !isRelativeLine(nextLine)) {
+          name = sanitizeName(nextLine).slice(0, FIELD_LIMITS.name)
+          nameReason = `Found addressee after To: header: "${name}"`
+          nameScore = 94
+          break
+        }
+      }
+    }
+
+    const nameMatch = line.match(COMPREHENSIVE_NAME_LABEL)
+    if (nameMatch) {
+      const inline = cleanValue(nameMatch[1])
+      if (inline && isNameCandidate(inline) && !isRelativeLine(inline)) {
+        name = sanitizeName(inline).slice(0, FIELD_LIMITS.name)
+        nameReason = `Labeled name on Aadhaar: "${name}"`
+        nameScore = 93
+        break
+      } else if (!inline && i + 1 < lines.length) {
+        const nextLine = cleanValue(lines[i + 1])
+        if (!looksLikeFieldLabel(nextLine) && isNameCandidate(nextLine) && !isRelativeLine(nextLine)) {
+          name = sanitizeName(nextLine).slice(0, FIELD_LIMITS.name)
+          nameReason = `Line following name label on Aadhaar: "${name}"`
+          nameScore = 90
+          break
+        }
+      }
+    }
+  }
+
+  // Top-of-card name scan fallback
+  if (!name) {
+    for (let i = 0; i < Math.min(10, lines.length); i++) {
+      const line = cleanValue(lines[i])
+      if (isRelativeLine(line) || looksLikeFieldLabel(line)) continue
+      if (i > 0 && isRelativeLine(lines[i - 1])) continue
+      if (/^\d{4}\s+\d{4}\s+\d{4}$/.test(line)) continue
+      if (isNameCandidate(line)) {
+        name = sanitizeName(line).slice(0, FIELD_LIMITS.name)
+        nameReason = `Top-of-card candidate line on Aadhaar: "${name}"`
+        nameScore = 78
+        break
+      }
+    }
+  }
+
+  // Aadhaar DOB:
+  let dateOfBirth = ''
+  let dobReason = ''
+  let dobScore = 0
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]
+    if (/(?:issue|expiry|valid|निर्गमन|समाप्ति)/i.test(line)) continue
 
     const match = line.match(FIELD_LABEL_PATTERNS.dateOfBirth)
     if (match) {
       let rawVal = cleanValue(line.slice(match.index + match[0].length))
-      if (!rawVal && i + 1 < lines.length) {
-        const nextLine = cleanValue(lines[i + 1])
-        if (!looksLikeFieldLabel(nextLine)) rawVal = nextLine
+      if (!rawVal && i + 1 < lines.length && !looksLikeFieldLabel(lines[i + 1])) {
+        rawVal = cleanValue(lines[i + 1])
       }
       if (rawVal) {
         const norm = normalizeDateCandidate(rawVal)
-        const dateSub =
-          norm.match(/\b(?:\d{1,2}[/.-]\d{1,2}[/.-]\d{2,4}|\d{8}|\d{1,2}\s+[A-Za-z]{3,12}\s+\d{4}|(?:19|20)\d{2})\b/)?.[0] ||
-          norm
+        const dateSub = norm.match(/\b(?:\d{1,2}[/.-]\d{1,2}[/.-]\d{2,4}|\d{8}|(?:19|20)\d{2})\b/)?.[0] || norm
         if (validDate(dateSub)) {
-          const formatted = formatStandardDate(dateSub)
-          candidates.push({
-            value: formatted,
-            score: /birth|जन्म/i.test(match[0]) ? 96 : 88,
-            rule: `FIELD_LABEL_PATTERNS.dateOfBirth ("${match[0]}")`,
-            reason: `Labeled date passed calendar validation: "${formatted}"`,
-          })
+          dateOfBirth = formatStandardDate(dateSub)
+          dobReason = `Labeled DOB on Aadhaar: "${dateOfBirth}"`
+          dobScore = 96
+          break
         }
       }
     }
   }
 
-  // Layer 2: DOB_PATTERNS regex match
-  for (const pattern of DOB_PATTERNS) {
+  if (!dateOfBirth) {
+    for (const pattern of DOB_PATTERNS) {
+      const match = text.match(pattern)
+      if (match?.[1]) {
+        const norm = normalizeDateCandidate(match[1])
+        if (validDate(norm)) {
+          dateOfBirth = formatStandardDate(norm)
+          dobReason = `Matched DOB pattern on Aadhaar: "${dateOfBirth}"`
+          dobScore = 84
+          break
+        }
+      }
+    }
+  }
+
+  // Aadhaar Address: To: block, or labeled address, or PIN line scan
+  let address = extractAddressBlock(lines)
+  let addressReason = ''
+  let addressScore = 0
+
+  if (address) {
+    addressReason = `Extracted address block ending in PIN: "${address}"`
+    addressScore = 96
+  } else {
+    const toIndex = lines.findIndex((l) => /^to\b/i.test(l))
+    const pinIndex = lines.findIndex((l) => INDIAN_PIN_PATTERN.test(l))
+    if (toIndex !== -1 && pinIndex > toIndex) {
+      const addrLines = []
+      for (let i = toIndex + 1; i <= pinIndex; i++) {
+        const line = cleanValue(lines[i])
+        if (!line) continue
+        if (i <= toIndex + 2 && isNameCandidate(line)) continue
+        if (/^(?:aadhaar|uidai|pan|election|voter|driving|dob|birth|जन्म)\b/i.test(line)) break
+        addrLines.push(line)
+      }
+      const fullAddr = addrLines.join(', ')
+      if (fullAddr.length >= 10 && INDIAN_PIN_PATTERN.test(fullAddr)) {
+        address = fullAddr.slice(0, FIELD_LIMITS.address)
+        addressReason = `Extracted Aadhaar address from To: envelope block: "${address}"`
+        addressScore = 95
+      }
+    }
+  }
+
+  if (!address) {
+    const pinMatch = text.match(INDIAN_PIN_PATTERN)
+    if (pinMatch) {
+      const targetIdx = lines.findIndex((l) => l.includes(pinMatch[0]))
+      if (targetIdx !== -1) {
+        const addrLines = []
+        for (let prev = Math.max(0, targetIdx - 3); prev < targetIdx; prev++) {
+          const l = lines[prev]
+          if (!looksLikeFieldLabel(l) && !isRelativeLine(l) && l.length > 4) {
+            addrLines.push(l)
+          }
+        }
+        addrLines.push(lines[targetIdx])
+        const joined = cleanValue(addrLines.join(' '))
+        if (joined.length >= 10) {
+          address = joined.slice(0, FIELD_LIMITS.address)
+          addressReason = `PIN code contextual line scan on Aadhaar: "${address}"`
+          addressScore = 75
+        }
+      }
+    }
+  }
+
+  return {
+    name: { value: name, score: nameScore, rule: 'AADHAAR_NAME', reason: nameReason },
+    dateOfBirth: { value: dateOfBirth, score: dobScore, rule: 'AADHAAR_DOB', reason: dobReason },
+    idNumber: { value: idNumber, score: idScore, rule: 'AADHAAR_ID', reason: idReason },
+    address: { value: address, score: addressScore, rule: 'AADHAAR_ADDRESS', reason: addressReason },
+  }
+}
+
+// ==========================================
+// 5. GENERIC DOCUMENT FALLBACK PIPELINE
+// ==========================================
+function extractGenericFields(text, lines) {
+  // 1. ID scan
+  let idNumber = ''
+  let idReason = ''
+  let idScore = 0
+
+  for (const pattern of [
+    /\b([0-9]{4}[ \t]+[0-9]{4}[ \t]+[0-9]{4})\b/,
+    /\b([A-Z]{5}[0-9]{4}[A-Z])\b/i,
+    /\b([A-Z]{3}[0-9]{7})\b/i,
+    /\b([A-Z]{2}[-\s]?[0-9]{2}[-\s]?(?:19|20)[0-9]{2}[-\s]?[0-9]{7})\b/i,
+    /\b([A-Z]{2}[0-9]{2}\s*[0-9]{11})\b/i,
+    /\b([A-Z]{1,3}[0-9]{6,16})\b/i,
+  ]) {
     const match = text.match(pattern)
     if (match?.[1]) {
-      const norm = normalizeDateCandidate(match[1])
-      if (validDate(norm)) {
-        const formatted = formatStandardDate(norm)
-        candidates.push({
-          value: formatted,
-          score: 82,
-          rule: 'DOB_PATTERNS',
-          reason: `Matched DOB_PATTERNS regex: "${formatted}"`,
-        })
-      }
+      const val = cleanValue(match[1])
+      if (/^\d{6}$/.test(val) || /^\d{10}$/.test(val)) continue
+      idNumber = val
+      idReason = `Matched generic ID pattern: "${val}"`
+      idScore = 80
+      break
     }
   }
 
-  // Layer 3: Unlabeled valid calendar date scan
-  for (const line of lines) {
-    if (/(?:issue|expiry|valid|निर्गमन|समाप्ति|जारी)/i.test(line)) continue
-    const normLine = normalizeDateCandidate(line)
-    const match = normLine.match(/\b(\d{1,2}[/.-]\d{1,2}[/.-]\d{2,4})\b/)
-    if (match?.[1] && validDate(match[1])) {
-      candidates.push({
-        value: match[1],
-        score: 60,
-        rule: 'unlabeled valid calendar date scan',
-        reason: `Found unlabelled valid date "${match[1]}" on line "${line}"`,
-      })
-    }
-  }
+  // 2. Name scan
+  let name = ''
+  let nameReason = ''
+  let nameScore = 0
 
-  if (!candidates.length) return null
-  candidates.sort((a, b) => b.score - a.score)
-  return candidates[0]
-}
-
-function scoreIdCandidates(text, lines, docType) {
-  const candidates = []
-
-  // Layer 1: Strict labeled ID
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i]
-    const match = line.match(FIELD_LABEL_PATTERNS.idNumber)
+    if (isRelativeLine(line)) continue
+    if (i > 0 && isRelativeLine(lines[i - 1])) continue
+
+    const match = line.match(COMPREHENSIVE_NAME_LABEL)
     if (match) {
-      let snippet = cleanValue(line.slice(match.index + match[0].length))
-      if (!snippet && i + 1 < lines.length && !looksLikeFieldLabel(lines[i + 1])) {
-        snippet = cleanValue(lines[i + 1])
-      }
-      if (snippet) {
-        const idVal = extractIdFromSnippet(snippet, docType)
-        if (idVal) {
-          candidates.push({
-            value: idVal,
-            score: 96,
-            rule: `FIELD_LABEL_PATTERNS.idNumber ("${match[0]}")`,
-            reason: `Extracted valid ID "${idVal}" from labeled snippet "${snippet}"`,
-          })
+      const inline = cleanValue(match[1])
+      if (inline && isNameCandidate(inline)) {
+        name = sanitizeName(inline).slice(0, FIELD_LIMITS.name)
+        nameReason = `Matched label: "${name}"`
+        nameScore = 90
+        break
+      } else if (!inline && i + 1 < lines.length) {
+        const nextLine = cleanValue(lines[i + 1])
+        if (!looksLikeFieldLabel(nextLine) && isNameCandidate(nextLine)) {
+          name = sanitizeName(nextLine).slice(0, FIELD_LIMITS.name)
+          nameReason = `Matched line after label: "${name}"`
+          nameScore = 85
+          break
         }
       }
     }
   }
 
-  // Layer 2: Format-validated scan across document
-  const idFromDoc = extractIdFromSnippet(text, docType)
-  if (idFromDoc) {
-    candidates.push({
-      value: idFromDoc,
-      score: 88,
-      rule: 'ID_PATTERNS document scan',
-      reason: `Found format-validated ID "${idFromDoc}" in document text`,
-    })
-  }
-
-  if (!candidates.length) return null
-  candidates.sort((a, b) => b.score - a.score)
-  return candidates[0]
-}
-
-function scoreAddressCandidates(text, lines, docType) {
-  // If document is PAN card, address is not present
-  if (docType?.id === 'pan') {
-    return null
-  }
-
-  const candidates = []
-
-  // Layer 1: Strict labeled address block
-  const labeled = labeledValue(text, FIELD_LABEL_PATTERNS.address, true)
-  if (labeled && labeled.length >= 10) {
-    let score = 88
-    if (INDIAN_PIN_PATTERN.test(labeled)) score += 10
-    if (INDIAN_STATES.some((s) => labeled.toLowerCase().includes(s.toLowerCase()))) score += 5
-    candidates.push({
-      value: labeled.slice(0, FIELD_LIMITS.address),
-      score,
-      rule: 'FIELD_LABEL_PATTERNS.address multiline block',
-      reason: `Extracted address block from label: "${labeled}"`,
-    })
-  }
-
-  // Layer 2: Aadhaar 'To:' envelope address block
-  const toIndex = lines.findIndex((l) => /^to\b/i.test(l))
-  const pinIndex = lines.findIndex((l) => INDIAN_PIN_PATTERN.test(l))
-  if (toIndex !== -1 && pinIndex > toIndex) {
-    const addrLines = []
-    for (let i = toIndex + 1; i <= pinIndex; i++) {
-      const line = cleanValue(lines[i])
-      if (!line) continue
-      // Skip the recipient name if it appears right below To:
-      if (i <= toIndex + 2 && isNameCandidate(line)) continue
-      // If we encounter a completely different section header (like Aadhaar no or DOB), stop
-      if (/^(?:aadhaar|uidai|pan|income|tax|election|voter|driving|dob|birth|जन्म)\b/i.test(line)) break
-      addrLines.push(line)
-    }
-    const fullAddr = cleanValue(addrLines.join(', '))
-    if (fullAddr.length >= 10 && INDIAN_PIN_PATTERN.test(fullAddr)) {
-      candidates.push({
-        value: fullAddr.slice(0, FIELD_LIMITS.address),
-        score: 94,
-        rule: 'Aadhaar To: block multiline address',
-        reason: `Found comprehensive address block under To: header: "${fullAddr}"`,
-      })
+  if (!name) {
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i]
+      if (isRelativeLine(line) || looksLikeFieldLabel(line)) continue
+      if (i > 0 && isRelativeLine(lines[i - 1])) continue
+      if (isNameCandidate(line)) {
+        name = sanitizeName(line).slice(0, FIELD_LIMITS.name)
+        nameReason = `First eligible name candidate line: "${name}"`
+        nameScore = 65
+        break
+      }
     }
   }
 
-  // Layer 3: ADDRESS_PATTERNS regex match
-  const patternAddr = firstPatternMatch(text, ADDRESS_PATTERNS)
-  if (patternAddr && patternAddr.length >= 10) {
-    candidates.push({
-      value: patternAddr.slice(0, FIELD_LIMITS.address),
-      score: 75,
-      rule: 'ADDRESS_PATTERNS regex match',
-      reason: `Matched ADDRESS_PATTERNS regex: "${patternAddr}"`,
-    })
-  }
+  // 3. DOB scan
+  let dateOfBirth = ''
+  let dobReason = ''
+  let dobScore = 0
 
-  // Layer 4: Contextual line scan around PIN code or State
-  const pinMatch = text.match(INDIAN_PIN_PATTERN)
-  const stateHit = INDIAN_STATES.find((state) => text.toLowerCase().includes(state.toLowerCase()))
-  if (pinMatch || stateHit) {
-    const targetIdx = lines.findIndex(
-      (l) =>
-        (pinMatch && l.includes(pinMatch[0])) ||
-        (stateHit && l.toLowerCase().includes(stateHit.toLowerCase()))
-    )
-    if (targetIdx !== -1) {
-      const addrLines = []
-      // Check previous 1-3 lines for address components like H.No, Street, Road, etc.
-      for (let prev = Math.max(0, targetIdx - 3); prev < targetIdx; prev++) {
-        const l = lines[prev]
-        if (!looksLikeFieldLabel(l) && !RELATIVE_PREFIXES.test(l) && l.length > 4) {
-          addrLines.push(l)
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]
+    if (/(?:issue|expiry|valid|निर्गमन|समाप्ति)/i.test(line)) continue
+    const match = line.match(FIELD_LABEL_PATTERNS.dateOfBirth)
+    if (match) {
+      let rawVal = cleanValue(line.slice(match.index + match[0].length))
+      if (!rawVal && i + 1 < lines.length && !looksLikeFieldLabel(lines[i + 1])) {
+        rawVal = cleanValue(lines[i + 1])
+      }
+      if (rawVal) {
+        const norm = normalizeDateCandidate(rawVal)
+        const dateSub = norm.match(/\b(?:\d{1,2}[/.-]\d{1,2}[/.-]\d{2,4}|\d{8}|(?:19|20)\d{2})\b/)?.[0] || norm
+        if (validDate(dateSub)) {
+          dateOfBirth = formatStandardDate(dateSub)
+          dobReason = `Labeled DOB: "${dateOfBirth}"`
+          dobScore = 90
+          break
         }
       }
-      addrLines.push(lines[targetIdx])
-      const joined = cleanValue(addrLines.join(' '))
-      if (joined.length >= 10) {
-        candidates.push({
-          value: joined.slice(0, FIELD_LIMITS.address),
-          score: 72,
-          rule: 'PIN / State contextual line scan',
-          reason: `Found address lines around PIN/State "${stateHit || pinMatch[0]}": "${joined}"`,
-        })
+    }
+  }
+
+  if (!dateOfBirth) {
+    for (const pattern of DOB_PATTERNS) {
+      const match = text.match(pattern)
+      if (match?.[1]) {
+        const norm = normalizeDateCandidate(match[1])
+        if (validDate(norm)) {
+          dateOfBirth = formatStandardDate(norm)
+          dobReason = `DOB regex match: "${dateOfBirth}"`
+          dobScore = 80
+          break
+        }
       }
     }
   }
 
-  if (!candidates.length) return null
-  candidates.sort((a, b) => b.score - a.score)
-  return candidates[0]
+  // 4. Address scan
+  let address = extractAddressBlock(lines)
+  let addressReason = ''
+  let addressScore = 0
+
+  if (address) {
+    addressReason = `Extracted address block ending in PIN: "${address}"`
+    addressScore = 96
+  } else {
+    const addrMatch = text.match(/(?:address|पता|निवास)\s*[:\-]?\s*([\s\S]{10,180}?\d{6})/i)
+    if (addrMatch?.[1]) {
+      const cleanedAddr = cleanValue(addrMatch[1].replace(/\r?\n/g, ' '))
+      if (cleanedAddr.length >= 10) {
+        address = cleanedAddr.slice(0, FIELD_LIMITS.address)
+        addressReason = `Extracted address regex match: "${address}"`
+        addressScore = 92
+      }
+    }
+  }
+
+  return {
+    name: { value: name, score: nameScore, rule: 'GENERIC_NAME', reason: nameReason },
+    dateOfBirth: { value: dateOfBirth, score: dobScore, rule: 'GENERIC_DOB', reason: dobReason },
+    idNumber: { value: idNumber, score: idScore, rule: 'GENERIC_ID', reason: idReason },
+    address: { value: address, score: addressScore, rule: 'GENERIC_ADDRESS', reason: addressReason },
+  }
 }
 
 function computeConfidence(candidate, words = []) {
@@ -594,6 +1069,14 @@ function computeConfidence(candidate, words = []) {
   return Math.min(100, Math.max(0, conf))
 }
 
+/**
+ * Main cross-document field extraction function.
+ * 1. Detects document type first using anchor keywords and strong ID patterns.
+ * 2. Applies the document-specific specialized rule set.
+ * 3. Enforces document-specific field checklists (e.g. PAN has no address).
+ * 4. Ensures zero cross-contamination and zero mixing of holder details with relative/validity noise.
+ * 5. Produces transparent diagnosis report.
+ */
 export function extractFields(rawText = '', words = []) {
   const text = String(rawText || '')
   const lines = text
@@ -601,33 +1084,43 @@ export function extractFields(rawText = '', words = []) {
     .map((line) => line.trim())
     .filter(Boolean)
 
-  // Document classification
+  // Step 1: Detect document type first
   const docType = classifyDocument(text)
 
-  const nameCandidate = scoreNameCandidates(text, lines, docType)
-  const dobCandidate = scoreDobCandidates(text, lines, docType)
-  const idCandidate = scoreIdCandidates(text, lines, docType)
-  const addressCandidate = scoreAddressCandidates(text, lines, docType)
+  // Step 2: Route to document-specific pipeline
+  let extracted
+  if (docType.id === DOCUMENT_TYPES.PAN.id) {
+    extracted = extractPanFields(text, lines)
+  } else if (docType.id === DOCUMENT_TYPES.VOTER_ID.id) {
+    extracted = extractVoterFields(text, lines)
+  } else if (docType.id === DOCUMENT_TYPES.DRIVING_LICENCE.id) {
+    extracted = extractDlFields(text, lines)
+  } else if (docType.id === DOCUMENT_TYPES.AADHAAR.id) {
+    extracted = extractAadhaarFields(text, lines)
+  } else {
+    extracted = extractGenericFields(text, lines)
+  }
 
-  const name = nameCandidate?.value || ''
-  const dateOfBirth = dobCandidate?.value || ''
-  const idNumber = idCandidate?.value || ''
-  const address = addressCandidate?.value || ''
+  const nameCandidate = extracted.name
+  const dobCandidate = extracted.dateOfBirth
+  const idCandidate = extracted.idNumber
+  const addressCandidate = extracted.address
+
+  const name = nameCandidate.value || ''
+  const dateOfBirth = dobCandidate.value || ''
+  const idNumber = idCandidate.value || ''
+  const address = addressCandidate.value || ''
 
   const trace = {
     documentType: docType,
-    name: nameCandidate || { rule: null, reason: 'No valid name candidate found', value: '' },
-    dateOfBirth: dobCandidate || { rule: null, reason: 'No valid calendar DOB found', value: '' },
-    idNumber: idCandidate || { rule: null, reason: 'No valid ID number passed checksum/format', value: '' },
-    address: addressCandidate || {
-      rule: null,
-      reason: docType?.id === 'pan' ? 'Address not present on standard PAN card' : 'No address block or PIN/State matched',
-      value: ''
-    },
+    name: nameCandidate,
+    dateOfBirth: dobCandidate,
+    idNumber: idCandidate,
+    address: addressCandidate,
   }
 
   const blankFields = Object.entries({ name, dateOfBirth, idNumber, address })
-    .filter(([key, val]) => !val && !(key === 'address' && docType?.id === 'pan'))
+    .filter(([key, val]) => !val && !(key === 'address' && docType.id === 'pan'))
     .map(([key]) => ({ field: key, reason: trace[key]?.reason || 'Not found' }))
 
   const diagnosis = {
@@ -638,25 +1131,67 @@ export function extractFields(rawText = '', words = []) {
     blankFields,
   }
 
-  console.group?.('[OCR DIAGNOSIS REPORT]') || console.log('=== [OCR DIAGNOSIS REPORT] ===')
-  console.log(`(a) DOCUMENT CLASSIFICATION: ${docType.name} (${docType.confidence}% confidence)`)
-  console.log('(b) RAW OCR TEXT OUTPUT:\n' + (text || '<EMPTY>'))
-  console.log('(c) LINE-BY-LINE ARRAY AFTER PREPROCESSING:\n', lines)
-  console.log('(d) WHICH REGEX/RULE MATCHED EACH FIELD AND WHY:\n', trace)
-  console.log('(e) FIELDS FALLEN THROUGH TO NULL/BLANK:\n', blankFields)
-  console.groupEnd?.()
-
   return {
     documentType: docType,
-    name: { value: name, confidence: computeConfidence(nameCandidate, words) },
-    dateOfBirth: { value: dateOfBirth, confidence: computeConfidence(dobCandidate, words) },
-    idNumber: { value: idNumber, confidence: computeConfidence(idCandidate, words) },
+    name: {
+      value: name,
+      confidence: computeConfidence(nameCandidate, words),
+      rule: nameCandidate.rule,
+    },
+    dateOfBirth: {
+      value: dateOfBirth,
+      confidence: computeConfidence(dobCandidate, words),
+      rule: dobCandidate.rule,
+      isApproximate: Boolean(dobCandidate.isApproximate),
+    },
+    idNumber: {
+      value: idNumber,
+      confidence: computeConfidence(idCandidate, words),
+      rule: idCandidate.rule,
+    },
     address: {
       value: address,
-      confidence: addressCandidate
-        ? computeConfidence(addressCandidate, words)
-        : (docType?.id === 'pan' ? 100 : 0)
+      confidence: docType.id === 'pan' ? 100 : computeConfidence(addressCandidate, words),
+      rule: addressCandidate.rule,
+      notApplicable: Boolean(addressCandidate.notApplicable),
     },
     _diagnosis: diagnosis,
+  }
+}
+
+/**
+ * Merges two extracted field sets (e.g. Front Side + Reverse Side of card).
+ * Preserves high confidence fields and merges missing address / fields.
+ */
+export function mergeExtractedFields(frontFields = {}, backFields = {}) {
+  const mergedDocType = frontFields.documentType || backFields.documentType || DOCUMENT_TYPES.UNKNOWN
+
+  const pickBestField = (key) => {
+    const frontVal = frontFields[key]
+    const backVal = backFields[key]
+
+    if (key === 'address' && mergedDocType.id === 'pan') {
+      return {
+        value: '',
+        confidence: 100,
+        notApplicable: true,
+      }
+    }
+
+    if (!frontVal?.value && backVal?.value) return backVal
+    if (frontVal?.value && !backVal?.value) return frontVal
+    if (!frontVal?.value && !backVal?.value) return frontVal || backVal
+
+    // If both have values, choose higher confidence
+    return (frontVal.confidence || 0) >= (backVal.confidence || 0) ? frontVal : backVal
+  }
+
+  return {
+    documentType: mergedDocType,
+    name: pickBestField('name'),
+    dateOfBirth: pickBestField('dateOfBirth'),
+    idNumber: pickBestField('idNumber'),
+    address: pickBestField('address'),
+    _merged: true,
   }
 }

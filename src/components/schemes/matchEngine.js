@@ -6,6 +6,13 @@ export function parseAgeFromDob(dateOfBirth) {
   const trimmed = dateOfBirth.trim()
   if (!trimmed) return null
 
+  // Direct age extraction: e.g. "Approx. 1980 (Age: 46)" or "Age: 46"
+  const ageMatch = trimmed.match(/(?:age\s*[:=]?\s*|\(age\s*[:=]?\s*)(\d{1,3})/i)
+  if (ageMatch?.[1]) {
+    const directAge = Number(ageMatch[1])
+    if (directAge >= 0 && directAge <= 120) return directAge
+  }
+
   const parsed = Date.parse(trimmed)
   let birth = Number.isNaN(parsed) ? null : new Date(parsed)
 
@@ -20,7 +27,16 @@ export function parseAgeFromDob(dateOfBirth) {
     }
   }
 
-  if (!birth || Number.isNaN(birth.getTime())) return null
+  // YOB only: e.g. "1978" or "Approx. 1978"
+  if (!birth || Number.isNaN(birth.getTime())) {
+    const yobMatch = trimmed.match(/\b(?:19|20)\d{2}\b/)
+    if (yobMatch) {
+      const yob = Number(yobMatch[0])
+      const calcAge = new Date().getFullYear() - yob
+      if (calcAge >= 0 && calcAge <= 120) return calcAge
+    }
+    return null
+  }
 
   const now = new Date()
   let age = now.getFullYear() - birth.getFullYear()
