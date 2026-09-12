@@ -23,6 +23,7 @@ export function NavigationProvider({ children }) {
 
   const goHome = () => {
     setCurrentScreen('home')
+    setEntryMode(null)
     setAnnouncementState('Choose how you would like to use DivyangSetu')
   }
 

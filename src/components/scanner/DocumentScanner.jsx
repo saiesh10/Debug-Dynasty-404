@@ -382,6 +382,9 @@ function DocumentScanner() {
               Rescan document
             </button>
           </div>
+          <p className="field-hint" style={{ marginTop: '10px', color: '#087f77', fontWeight: 500 }}>
+            🗣️ Talk to navigate: Say “Find schemes” or “Proceed” to see your matching welfare schemes.
+          </p>
         </div>
       )}
 

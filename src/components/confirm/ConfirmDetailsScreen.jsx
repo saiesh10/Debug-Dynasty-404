@@ -13,7 +13,8 @@ const FIELDS = [
 
 function ConfirmDetailsScreen() {
   const { citizenData, updateCitizenData, setMatchedSchemes, setSelectedScheme } = useCitizen()
-  const { navigateTo } = useNavigation()
+  const { navigateTo, entryMode } = useNavigation()
+  const inVoiceMode = entryMode === 'voice'
 
   const doc = citizenData.documentType
   const idLabel = doc?.idLabel || 'ID number'
@@ -36,7 +37,10 @@ function ConfirmDetailsScreen() {
     <section className="workspace-panel">
       <span className="eyebrow">Step 2 of 3 · Confirm details</span>
       <h2>Check the extracted details</h2>
-      <p className="lead">Please correct anything that does not look right before continuing.</p>
+      <p className="lead">
+        Please correct anything that does not look right before continuing.
+        {inVoiceMode && ' Speak “find schemes” to continue or “rescan” to retake.'}
+      </p>
 
       {doc && (
         <div className="doc-type-card" role="status" aria-label={`Document recognized as ${doc.name}`}>

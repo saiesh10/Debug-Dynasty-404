@@ -10,6 +10,7 @@ import SchemesScreen from './components/schemes/SchemesScreen'
 import ApplicationReviewScreen from './components/application/ApplicationReviewScreen'
 import EmergencyHelpScreen from './components/emergency/EmergencyHelpScreen'
 import { GestureSessionProvider, useGestureControl } from './components/gesture/GestureSession'
+import { VoiceSessionProvider } from './components/voice/VoiceSession'
 import './App.css'
 
 const DocumentScanner = lazy(() => import('./components/scanner/DocumentScanner'))
@@ -105,7 +106,9 @@ function App() {
         <CameraProvider>
           <OneKeyNavProvider>
             <GestureSessionProvider>
-              <AppContent />
+              <VoiceSessionProvider>
+                <AppContent />
+              </VoiceSessionProvider>
             </GestureSessionProvider>
           </OneKeyNavProvider>
         </CameraProvider>

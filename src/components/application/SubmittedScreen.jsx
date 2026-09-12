@@ -6,7 +6,8 @@ import { generateApplicationPDF } from './generateApplicationPDF'
 
 function SubmittedScreen() {
   const { citizenData, selectedScheme, matchedSchemes } = useCitizen()
-  const { navigateTo } = useNavigation()
+  const { navigateTo, entryMode } = useNavigation()
+  const inVoiceMode = entryMode === 'voice'
   const scheme = selectedScheme || matchedSchemes[0]
   const [downloadStarted, setDownloadStarted] = useState(false)
 
@@ -24,7 +25,10 @@ function SubmittedScreen() {
       <span className="success-mark" aria-hidden="true">✓</span>
       <span className="eyebrow">Application ready</span>
       <h2>Your completed application is ready</h2>
-      <p className="lead">This demo creates a downloadable application. A production version would submit it directly to the scheme portal.</p>
+      <p className="lead">
+        This demo creates a downloadable application. A production version would submit it directly to the scheme portal.
+        {inVoiceMode && ' Speak “save pdf” or “download pdf” to save.'}
+      </p>
       <div className="action-row">
         <button className="primary-button" type="button" onClick={downloadPdf} disabled={downloadStarted}>
           {downloadStarted ? 'PDF download started' : 'Download application PDF'}

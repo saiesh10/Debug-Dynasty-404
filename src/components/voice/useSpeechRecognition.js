@@ -5,77 +5,213 @@ function getSpeechRecognition() {
   return window.SpeechRecognition || window.webkitSpeechRecognition || null
 }
 
-export function useSpeechRecognition(onFinalResult) {
+export function useSpeechRecognition(onSpeechResult, options = {}) {
+  const { continuous = true, autoStart = false } = options
   const Recognition = getSpeechRecognition()
   const recognitionRef = useRef(null)
-  const onFinalRef = useRef(onFinalResult)
+  const onResultRef = useRef(onSpeechResult)
+  const isActiveRef = useRef(false)
+  const restartTimerRef = useRef(null)
+
   const [transcript, setTranscript] = useState('')
   const [isListening, setIsListening] = useState(false)
+  const [speechDetected, setSpeechDetected] = useState(false)
   const [confidence, setConfidence] = useState(0)
   const [error, setError] = useState(null)
+  const [hasPermission, setHasPermission] = useState(true)
 
   useEffect(() => {
-    onFinalRef.current = onFinalResult
-  }, [onFinalResult])
-
-  useEffect(() => () => {
-    recognitionRef.current?.stop()
-  }, [])
+    onResultRef.current = onSpeechResult
+  }, [onSpeechResult])
 
   const stop = useCallback(() => {
-    recognitionRef.current?.stop()
+    isActiveRef.current = false
+    if (restartTimerRef.current) clearTimeout(restartTimerRef.current)
+    try {
+      if (recognitionRef.current) {
+        recognitionRef.current.abort()
+        recognitionRef.current = null
+      }
+    } catch {
+      // ignore
+    }
     setIsListening(false)
+    setSpeechDetected(false)
   }, [])
 
   const start = useCallback(() => {
     const Ctor = getSpeechRecognition()
     if (!Ctor) {
-      setError('Speech recognition is not supported in this browser.')
+      setError('Speech recognition is not supported in this browser. Please open in Google Chrome or Microsoft Edge.')
       return
     }
 
+    if (restartTimerRef.current) clearTimeout(restartTimerRef.current)
+    isActiveRef.current = true
     setError(null)
-    const recognition = new Ctor()
-    recognition.lang = 'en-IN'
-    recognition.interimResults = true
-    recognition.maxAlternatives = 1
-    recognitionRef.current = recognition
 
-    recognition.onresult = (event) => {
-      const result = event.results[event.results.length - 1]
-      const spoken = result?.[0]?.transcript || ''
-      const nextConfidence = Number(result?.[0]?.confidence || 0)
-      setTranscript(spoken)
-      setConfidence(nextConfidence)
-      if (result?.isFinal) {
-        onFinalRef.current?.({ transcript: spoken, confidence: nextConfidence })
+    try {
+      // Abort old instance if running
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.abort()
+        } catch {
+          // ignore
+        }
+        recognitionRef.current = null
+      }
+
+      const recognition = new Ctor()
+      const browserLang = (typeof navigator !== 'undefined' && navigator.language) || 'en-IN'
+      recognition.lang = browserLang
+      recognition.continuous = continuous
+      recognition.interimResults = true
+      recognition.maxAlternatives = 3
+      recognitionRef.current = recognition
+
+      recognition.onstart = () => {
+        setIsListening(true)
+        setError(null)
+        setHasPermission(true)
+      }
+
+      recognition.onaudiostart = () => {
+        setIsListening(true)
+      }
+
+      recognition.onsoundstart = () => {
+        setSpeechDetected(true)
+      }
+
+      recognition.onspeechstart = () => {
+        setSpeechDetected(true)
+      }
+
+      recognition.onspeechend = () => {
+        setSpeechDetected(false)
+      }
+
+      recognition.onsoundend = () => {
+        setSpeechDetected(false)
+      }
+
+      recognition.onresult = (event) => {
+        if (!event.results || event.results.length === 0) return
+
+        let currentPhrase = ''
+        let isFinal = false
+        let maxConfidence = 0
+
+        // Get the latest active utterance from the result list
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          const res = event.results[i]
+          if (res?.[0]) {
+            currentPhrase = res[0].transcript
+            if (res[0].confidence > maxConfidence) {
+              maxConfidence = res[0].confidence
+            }
+          }
+          if (res?.isFinal) {
+            isFinal = true
+          }
+        }
+
+        // If nothing in slice, fallback to the last item in results
+        if (!currentPhrase && event.results.length > 0) {
+          const last = event.results[event.results.length - 1]
+          if (last?.[0]) {
+            currentPhrase = last[0].transcript
+            isFinal = Boolean(last.isFinal)
+            maxConfidence = last[0].confidence || 0
+          }
+        }
+
+        const cleanTranscript = currentPhrase.trim()
+        if (cleanTranscript) {
+          setTranscript(cleanTranscript)
+          setConfidence(maxConfidence)
+          onResultRef.current?.({
+            transcript: cleanTranscript,
+            isFinal,
+            confidence: maxConfidence,
+          })
+        }
+      }
+
+      recognition.onerror = (event) => {
+        if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+          isActiveRef.current = false
+          setIsListening(false)
+          setHasPermission(false)
+          setError('Microphone access is blocked. Please click the camera/mic icon in your browser address bar to allow microphone access.')
+          return
+        }
+        if (event.error === 'no-speech' || event.error === 'aborted') {
+          // Normal background silence / restart event
+          return
+        }
+        if (event.error === 'network') {
+          return
+        }
+        setError(event.error || 'Speech recognition encountered an issue.')
+      }
+
+      recognition.onend = () => {
+        setIsListening(false)
+        setSpeechDetected(false)
+        recognitionRef.current = null
+
+        // If still active, seamlessly restart with a fresh Ctor instance
+        if (isActiveRef.current) {
+          restartTimerRef.current = setTimeout(() => {
+            if (isActiveRef.current) {
+              start()
+            }
+          }, 80)
+        }
+      }
+
+      recognition.start()
+      setIsListening(true)
+    } catch (err) {
+      if (err.name !== 'InvalidStateError') {
+        setError(err.message || 'Could not start microphone voice input.')
       }
     }
+  }, [continuous])
 
-    recognition.onerror = (event) => {
-      setIsListening(false)
-      if (event.error === 'not-allowed') {
-        setError('Microphone permission was denied.')
-        return
+  useEffect(() => {
+    if (autoStart && Recognition) {
+      start()
+    }
+    return () => {
+      isActiveRef.current = false
+      if (restartTimerRef.current) clearTimeout(restartTimerRef.current)
+      try {
+        if (recognitionRef.current) {
+          recognitionRef.current.abort()
+          recognitionRef.current = null
+        }
+      } catch {
+        // ignore
       }
-      setError(event.error || 'Speech recognition failed.')
     }
+  }, [autoStart, Recognition, start])
 
-    recognition.onend = () => {
-      setIsListening(false)
-    }
-
-    setIsListening(true)
-    recognition.start()
+  const resetTranscript = useCallback(() => {
+    setTranscript('')
   }, [])
 
   return {
     transcript,
     isListening,
+    speechDetected,
     confidence,
     start,
     stop,
+    resetTranscript,
     isSupported: Boolean(Recognition),
+    hasPermission,
     error,
   }
 }

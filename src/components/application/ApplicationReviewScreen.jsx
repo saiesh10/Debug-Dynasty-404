@@ -5,7 +5,8 @@ import { usePrimaryAction } from '../common/OneKeyNavProvider'
 
 function ApplicationReviewScreen() {
   const { citizenData, selectedScheme, matchedSchemes } = useCitizen()
-  const { navigateTo } = useNavigation()
+  const { navigateTo, entryMode } = useNavigation()
+  const inVoiceMode = entryMode === 'voice'
   const scheme = selectedScheme || matchedSchemes[0]
 
   const createPdf = useCallback(() => {
@@ -18,7 +19,10 @@ function ApplicationReviewScreen() {
     <section className="workspace-panel">
       <span className="eyebrow">Application review</span>
       <h2>Ready to create your application?</h2>
-      <p className="lead">We will generate a completed PDF for your records. Nothing is submitted to a government portal in this demo.</p>
+      <p className="lead">
+        We will generate a completed PDF for your records. Nothing is submitted to a government portal in this demo.
+        {inVoiceMode && ' Speak “save pdf” or “create pdf” to continue.'}
+      </p>
       <div className="summary-box">
         <strong>{scheme?.name || 'Disability support'}</strong>
         <span>{citizenData.name}</span>
