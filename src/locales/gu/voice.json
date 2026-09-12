@@ -1,0 +1,64 @@
+{
+  "eyebrow": "વોઇસ નેવિગેશન સહાયક",
+  "title": "તમારે શું જોઈએ છે તે કહો",
+  "lead": "વોઇસ ઓળખ સક્રિય છે અને સાંભળી રહી છે. બટનો અડ્યા વિના નેવિગેટ કરવા માટે બોલો.",
+  "status": {
+    "listeningSpeech": "અવાજ સાંભળી રહ્યું છે…",
+    "listeningMic": "માઇક્રોફોન સાંભળી રહ્યો છે…",
+    "connecting": "માઇક્રોફોન કનેક્ટ થઈ રહ્યો છે…",
+    "paused": "માઇક્રોફોન થોભાવ્યો છે"
+  },
+  "hearing": "સાંભળ્યું: “{{transcript}}”",
+  "speakPrompt": "માઇક્રોફોનમાં બોલો — “explore schemes” અથવા “યોજનાઓ શોધો” કહો",
+  "chips": {
+    "explore": "🗣️ “explore schemes” → સ્કેનર ખોલો",
+    "find": "🗣️ “find schemes” → યોજનાઓ તપાસો",
+    "emergency": "🗣️ “emergency” → કટોકટી સહાય",
+    "home": "🗣️ “go home” → મુખ્ય મેનુ"
+  },
+  "micRetry": "માઇક્રોફોન ફરીથી અજમાવો",
+  "openScanner": "સ્કેનર ખોલો →",
+  "muteMic": "માઇક બંધ કરો",
+  "unmuteMic": "માઇક ચાલુ કરો",
+  "muteShort": "માઇક બંધ",
+  "unmuteShort": "માઇક ચાલુ",
+  "exitVoice": "વોઇસ મોડ બંધ",
+  "talkToNavigate": "બોલીને નેવિગેટ કરો",
+  "voiceNavigatorListening": "વોઇસ નેવિગેટર: સાંભળી રહ્યું છે…",
+  "voiceNavigatorConnecting": "માઇક જોડાઈ રહ્યું છે…",
+  "voiceNavigatorPaused": "વોઇસ નેવિગેટર: થોભાવેલ",
+  "fallback": {
+    "unavailable": "વોઇસ ઇનપુટ ઉપલબ્ધ નથી. ટાઈપ કરીને આદેશ આપો.",
+    "unclear": "અવાજ સ્પષ્ટ નહોતો. ટાઈપ કરીને આદેશ આપો.",
+    "general": "તમે ટાઈપ કરીને પણ આદેશ આપી શકો છો",
+    "placeholder": "આદેશ લખો, દા.ત.: explore schemes"
+  },
+  "hints": {
+    "home": "કહો “explore schemes”, “voice mode”, અથવા “emergency”",
+    "voice": "કહો “explore schemes”, “emergency”, અથવા “go home”",
+    "scanner": "કહો “capture”, “upload”, “find scheme”, અથવા “go home”",
+    "confirm": "કહો “find scheme”, “rescan”, અથવા “go home”",
+    "schemes": "કહો “choose scheme 1”, “choose scheme 2”, અથવા “go back”",
+    "application": "કહો “save pdf”, “back to schemes”, અથવા “go home”",
+    "submitted": "કહો “save pdf”, “download pdf”, અથવા “go home”",
+    "emergency": "કહો “go home” અથવા “go back”"
+  },
+  "spoken": {
+    "voiceReady": "વોઇસ સહાયક તૈયાર છે. સ્કેન કરવા માટે 'explore schemes' અથવા 'find schemes' કહો.",
+    "scannerReady": "દસ્તાવેજ સ્કેનર તૈયાર છે. કાર્ડ સામે રાખો અને 'find scheme' કહો.",
+    "confirmDetails": "તમારી વિગતો તપાસો {{name}}. યોજનાઓ જોવા 'find scheme' કહો.",
+    "schemesFound": "{{count}} યોજનાઓ મળી. પહેલી યોજના માટે 'choose scheme 1' કહો.",
+    "noSchemes": "કોઈ યોજના મળી નથી. 'rescan' અથવા 'go back' કહો.",
+    "appReview": "{{scheme}} માટે અરજી સમીક્ષા. 'save pdf' કહો.",
+    "appSubmitted": "અરજી પૂર્ણ થઈ. ફાઈલ ડાઉનલોડ કરવા 'save pdf' કહો.",
+    "openingEmergency": "કટોકટી સહાય ખોલી રહ્યા છીએ.",
+    "goingBack": "પાછા જઈ રહ્યા છીએ.",
+    "openingScanner": "સ્કેનર ખોલી રહ્યા છીએ.",
+    "capturingDoc": "દસ્તાવેજ કેપ્ચર કરી રહ્યા છીએ.",
+    "restartingScanner": "સ્કેનર ફરી શરૂ કરી રહ્યા છીએ.",
+    "findingSchemes": "યોજનાઓ શોધી રહ્યા છીએ.",
+    "selectedScheme": "{{name}} પસંદ કરવામાં આવી.",
+    "appGenerated": "અરજી તૈયાર થઈ ગઈ છે.",
+    "pdfDownloaded": "અરજી પીડીએફ ડાઉનલોડ થઈ ગઈ."
+  }
+}

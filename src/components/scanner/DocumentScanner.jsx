@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useCitizen } from '../../context/CitizenContext'
 import { useNavigation } from '../../context/NavigationContext'
 import { useCamera } from '../../context/CameraContext'
@@ -37,14 +38,8 @@ function hasAnyExtractedField(fields) {
   )
 }
 
-/**
- * Calculates extraction completeness score (0 to 100%) and checks whether
- * the document is ready to proceed.
- * If Name and Date of Birth (DOB) are correctly extracted, we can proceed automatically
- * to the next step (ID Number and Address can be manually filled or confirmed on next screen).
- */
 function evaluateScanQuality(fields) {
-  if (!fields || !fields.documentType || fields.documentType.id === 'unknown') {
+  if (!fields) {
     return { score: 10, isComplete: false, missingFields: ['Document Type'] }
   }
 
@@ -56,7 +51,7 @@ function evaluateScanQuality(fields) {
   const missing = []
   if (!hasName) missing.push('Full Name')
   if (!hasDob) missing.push('Date of Birth')
-  if (!hasId) missing.push(fields.documentType.idLabel || 'ID Number')
+  if (!hasId) missing.push(fields.documentType?.idLabel || 'ID Number')
 
   let score = 20
   if (hasName) score += 40
@@ -64,16 +59,21 @@ function evaluateScanQuality(fields) {
   if (hasId) score = Math.min(100, score + 10)
   if (hasAddr) score = 100
 
-  // User rule: If Name and DOB are extracted correctly, proceed automatically
-  const isComplete = hasName && hasDob
+  const isComplete = hasName && hasDob && hasId
+  if (!fields.documentType || fields.documentType.id === 'unknown') missing.push('Document Type')
+
   return { score: isComplete ? 100 : score, isComplete, missingFields: missing }
 }
 
 function DocumentScanner() {
+  const { t } = useTranslation(['scanner', 'common'])
   const videoRef = useRef(null)
   const canvasRef = useRef(null)
   const autoAdvanceTimerRef = useRef(null)
   const countdownIntervalRef = useRef(null)
+  const isVerifiedRef = useRef(false)
+  const hasCommittedRef = useRef(false)
+  const draftFieldsRef = useRef(null)
 
   const { updateCitizenData } = useCitizen()
   const { navigateTo, goHome } = useNavigation()
@@ -86,7 +86,7 @@ function DocumentScanner() {
   const [countdownSeconds, setCountdownSeconds] = useState(null)
   const [isCountdownPaused, setIsCountdownPaused] = useState(false)
   const [buttonNavigation, setButtonNavigation] = useState(false)
-  const [status, setStatus] = useState('Position your identity document inside the frame and hold steady.')
+  const [status, setStatus] = useState(t('scanner:status.initial', 'Position your identity document inside the frame and hold steady.'))
   const [scanPassCount, setScanPassCount] = useState(0)
 
   useEffect(() => {
@@ -102,7 +102,6 @@ function DocumentScanner() {
     return undefined
   }, [stream])
 
-  // Clear countdown intervals on unmount
   useEffect(() => {
     return () => {
       if (autoAdvanceTimerRef.current) clearTimeout(autoAdvanceTimerRef.current)
@@ -111,6 +110,8 @@ function DocumentScanner() {
   }, [])
 
   const commitFields = useCallback((fields) => {
+    if (!fields || hasCommittedRef.current) return
+    hasCommittedRef.current = true
     if (autoAdvanceTimerRef.current) clearTimeout(autoAdvanceTimerRef.current)
     if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current)
     updateCitizenData(toCitizenRecord(fields))
@@ -148,8 +149,8 @@ function DocumentScanner() {
   }, [])
 
   const runOcrOnImage = useCallback(async (image, isManualCapture = false) => {
-    if (isVerified) return
-    setStatus('Reading document carefully… Hold card steady in good light.')
+    if (isVerifiedRef.current) return
+    setStatus(t('scanner:status.reading', 'Reading document carefully… Hold card steady in good light.'))
 
     const result = await recognize(image)
     if (result.error) {
@@ -163,8 +164,9 @@ function DocumentScanner() {
 
     const nextFields = extractFields(result.text, result.words)
 
-    if (!hasAnyExtractedField(nextFields) && !draftFields) {
-      setStatus('No clear document text detected yet. Keep card flat inside frame with good lighting.')
+    const previousFields = draftFieldsRef.current
+    if (!hasAnyExtractedField(nextFields) && !previousFields) {
+      setStatus(t('scanner:status.noText', 'No clear document text detected yet. Keep card flat inside frame with good lighting.'))
       if (isManualCapture) {
         setDraftFields(emptyFields())
         setShowCorrection(true)
@@ -174,41 +176,51 @@ function DocumentScanner() {
 
     setScanPassCount((prev) => prev + 1)
 
-    // Accumulate and progressively refine details across frames
-    const merged = draftFields ? mergeExtractedFields(draftFields, nextFields) : nextFields
+    const merged = previousFields ? mergeExtractedFields(previousFields, nextFields) : nextFields
+    draftFieldsRef.current = merged
     setDraftFields(merged)
 
     const quality = evaluateScanQuality(merged)
     const docName = merged.documentType?.name || 'Document'
 
-    // Check if the document has complete, verified information
     if (quality.isComplete) {
+      isVerifiedRef.current = true
       setIsVerified(true)
-      setStatus(`✅ ${docName} successfully scanned & verified! All required details extracted.`)
+      setStatus(
+        t('scanner:status.verified', '✅ {{docName}} successfully scanned & verified! All required details extracted.', {
+          docName,
+        }),
+      )
       startAutoAdvanceCountdown(merged)
       return
     }
 
-    // If incomplete:
     if (isManualCapture) {
-      // On manual capture, open correction form pre-filled with whatever was captured
-      setStatus('Reviewing captured details…')
+      setStatus(t('scanner:status.reviewing', 'Reviewing captured details…'))
       setShowCorrection(true)
     } else {
-      // On automatic scanning: guide user to hold steady for missing fields
       if (quality.missingFields.length > 0) {
-        setStatus(`Detected ${docName}. Hold steady to scan: ${quality.missingFields.join(', ')}…`)
+        setStatus(
+          t('scanner:status.holdSteadyMissing', 'Detected {{docName}}. Hold steady to scan: {{missing}}…', {
+            docName,
+            missing: quality.missingFields.join(', '),
+          }),
+        )
       } else {
-        setStatus(`Scanning ${docName}… Hold steady to refine details.`)
+        setStatus(
+          t('scanner:status.holdSteadyRefine', 'Scanning {{docName}}… Hold steady to refine details.', {
+            docName,
+          }),
+        )
       }
     }
-  }, [draftFields, isVerified, recognize, startAutoAdvanceCountdown])
+  }, [draftFields, isVerified, recognize, startAutoAdvanceCountdown, t])
 
   const captureFrame = useCallback(async (isManualCapture = false) => {
     const video = videoRef.current
     const canvas = canvasRef.current
     if (!video || !canvas || video.readyState < 2) {
-      setStatus('Camera starting… Position document inside the frame.')
+      setStatus(t('scanner:status.cameraStarting', 'Camera starting… Position document inside the frame.'))
       return
     }
     canvas.width = video.videoWidth || 1280
@@ -216,9 +228,8 @@ function DocumentScanner() {
     const context = canvas.getContext('2d')
     context.drawImage(video, 0, 0, canvas.width, canvas.height)
     await runOcrOnImage(canvas, isManualCapture)
-  }, [runOcrOnImage])
+  }, [runOcrOnImage, t])
 
-  // Deliberate auto-scan timer: gives user 3.5s to align before first scan, scans every 3.5s
   useEffect(() => {
     if (!stream || showCorrection || isVerified) return undefined
 
@@ -255,10 +266,13 @@ function DocumentScanner() {
 
   const restartScan = () => {
     pauseCountdown()
+    isVerifiedRef.current = false
+    hasCommittedRef.current = false
+    draftFieldsRef.current = null
     setIsVerified(false)
     setDraftFields(null)
     setScanPassCount(0)
-    setStatus('Position your identity document inside the frame and hold steady.')
+    setStatus(t('scanner:status.initial', 'Position your identity document inside the frame and hold steady.'))
   }
 
   usePrimaryAction(
@@ -274,17 +288,20 @@ function DocumentScanner() {
 
   return (
     <section className="workspace-panel scanner-panel">
-      <span className="eyebrow">Step 1 of 3 · Document scan</span>
-      <h2>Scan an identity document</h2>
+      <span className="eyebrow">{t('scanner:eyebrow', 'Step 1 of 3 · Document scan')}</span>
+      <h2>{t('scanner:title', 'Scan an identity document')}</h2>
       <p className="lead">
-        Supports PAN Card, Voter ID (EPIC), Driving Licence, and Aadhaar Card. Takes time to scan and verify proper details.
+        {t(
+          'scanner:lead',
+          'Supports PAN Card, Voter ID (EPIC), Driving Licence, and Aadhaar Card. Takes time to scan and verify proper details.',
+        )}
       </p>
 
       {!isVerified && (
         <div className={`scan-frame ${errorInfo ? 'placeholder' : ''}`}>
           {errorInfo && !stream ? (
             <>
-              <span>Camera unavailable</span>
+              <span>{t('scanner:cameraUnavailable', 'Camera unavailable')}</span>
               <small>{errorInfo.userMessage}</small>
             </>
           ) : (
@@ -300,26 +317,32 @@ function DocumentScanner() {
         onFallback={() => {
           stopCamera()
           setButtonNavigation(true)
-          setStatus('Button navigation is on. Enter your details manually to continue.')
+          setStatus(t('scanner:status.buttonNavOn', 'Button navigation is on. Enter your details manually to continue.'))
         }}
         showFallbackAction={shouldOfferButtonFallback}
       />
 
-      {/* VERIFIED SUMMARY STATE: Shows extracted details cleanly without rushing */}
+      {/* VERIFIED SUMMARY STATE */}
       {isVerified && draftFields && !showCorrection && (
         <div className="scanner-verified-panel" aria-live="polite">
           <div className="scanner-verified-header">
             <div className="scanner-badge-group">
-              <span className="scanner-success-badge">✅ Scan Complete & Verified</span>
+              <span className="scanner-success-badge">
+                {t('scanner:verifiedPanel.scanComplete', '✅ Scan Complete & Verified')}
+              </span>
               <span className="scanner-doc-badge">
                 {draftFields.documentType?.icon || '🪪'} {draftFields.documentType?.name || 'Identity Document'}
               </span>
             </div>
             {countdownSeconds !== null && countdownSeconds > 0 && !isCountdownPaused && (
               <div className="scanner-countdown-tag">
-                <span>Advancing in {countdownSeconds}s</span>
+                <span>
+                  {t('scanner:verifiedPanel.advancingIn', 'Advancing in {{count}}s', {
+                    count: countdownSeconds,
+                  })}
+                </span>
                 <button type="button" className="scanner-pause-btn" onClick={pauseCountdown}>
-                  Pause
+                  {t('scanner:verifiedPanel.pause', 'Pause')}
                 </button>
               </div>
             )}
@@ -327,34 +350,38 @@ function DocumentScanner() {
 
           <div className="scanner-verified-card">
             <div className="scanner-field-row">
-              <span className="field-title">Full Name:</span>
+              <span className="field-title">{t('scanner:verifiedPanel.fullName', 'Full Name:')}</span>
               <strong className="field-value">
                 {draftFields.name?.value ? `✓ ${draftFields.name.value}` : '—'}
               </strong>
             </div>
 
             <div className="scanner-field-row">
-              <span className="field-title">{draftFields.documentType?.idLabel || 'ID Number'}:</span>
+              <span className="field-title">
+                {draftFields.documentType?.idLabel || t('scanner:verifiedPanel.idNumber', 'ID Number:')}:
+              </span>
               <strong className="field-value">
-                {draftFields.idNumber?.value ? `✓ ${draftFields.idNumber.value}` : 'Can be filled manually on next screen'}
+                {draftFields.idNumber?.value
+                  ? `✓ ${draftFields.idNumber.value}`
+                  : t('scanner:verifiedPanel.manualFillNotice', 'Can be filled manually on next screen')}
               </strong>
             </div>
 
             <div className="scanner-field-row">
-              <span className="field-title">Date of Birth / Age:</span>
+              <span className="field-title">{t('scanner:verifiedPanel.dob', 'Date of Birth / Age:')}</span>
               <strong className="field-value">
                 {draftFields.dateOfBirth?.value ? `✓ ${draftFields.dateOfBirth.value}` : '—'}
               </strong>
             </div>
 
             <div className="scanner-field-row">
-              <span className="field-title">Address:</span>
+              <span className="field-title">{t('scanner:verifiedPanel.address', 'Address:')}</span>
               <strong className="field-value">
                 {draftFields.documentType?.id === 'pan'
-                  ? 'Not on standard PAN card (Not required)'
+                  ? t('scanner:verifiedPanel.panNoAddress', 'Not on standard PAN card (Not required)')
                   : draftFields.address?.value
                   ? `✓ ${draftFields.address.value}`
-                  : 'Can be filled manually on next screen'}
+                  : t('scanner:verifiedPanel.manualFillNotice', 'Can be filled manually on next screen')}
               </strong>
             </div>
           </div>
@@ -365,30 +392,33 @@ function DocumentScanner() {
               type="button"
               onClick={() => commitFields(draftFields)}
             >
-              Proceed with verified details →
+              {t('scanner:verifiedPanel.proceedBtn', 'Proceed with verified details →')}
             </button>
             <button
               className="secondary-button"
               type="button"
               onClick={() => setShowCorrection(true)}
             >
-              Edit details
+              {t('scanner:verifiedPanel.editBtn', 'Edit details')}
             </button>
             <button
               className="secondary-button"
               type="button"
               onClick={restartScan}
             >
-              Rescan document
+              {t('scanner:verifiedPanel.rescanBtn', 'Rescan document')}
             </button>
           </div>
           <p className="field-hint" style={{ marginTop: '10px', color: '#087f77', fontWeight: 500 }}>
-            🗣️ Talk to navigate: Say “Find schemes” or “Proceed” to see your matching welfare schemes.
+            {t(
+              'scanner:verifiedPanel.voiceHint',
+              '🗣️ Talk to navigate: Say “Find schemes” or “Proceed” to see your matching welfare schemes.',
+            )}
           </p>
         </div>
       )}
 
-      {/* LIVE SCANNING PROGRESS & CHIPS (when not yet verified) */}
+      {/* LIVE SCANNING PROGRESS & CHIPS */}
       {!isVerified && hasAnyDetectedField && !showCorrection && (
         <div className="scanner-live-preview" aria-live="polite">
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
@@ -397,23 +427,34 @@ function DocumentScanner() {
               <span>{draftFields.documentType?.name || 'Document Identified'}</span>
             </strong>
             <span style={{ fontSize: '12px', color: '#087f77', fontWeight: 600 }}>
-              Scan Progress: {quality.score}% · Pass {scanPassCount}
+              {t('scanner:chips.progress', 'Scan Progress: {{score}}% · Pass {{pass}}', {
+                score: quality.score,
+                pass: scanPassCount,
+              })}
             </span>
           </div>
 
           <div className="scanner-detected-chips">
             <span className={`scanner-chip ${draftFields.name?.value ? '' : 'missing'}`}>
-              {draftFields.name?.value ? `✓ Name: ${draftFields.name.value}` : '○ Scanning for Name…'}
+              {draftFields.name?.value
+                ? t('scanner:chips.nameFound', '✓ Name: {{value}}', { value: draftFields.name.value })
+                : t('scanner:chips.nameScanning', '○ Scanning for Name…')}
             </span>
             <span className={`scanner-chip ${draftFields.idNumber?.value ? '' : 'missing'}`}>
-              {draftFields.idNumber?.value ? `✓ ID: ${draftFields.idNumber.value}` : '○ Scanning for ID Number…'}
+              {draftFields.idNumber?.value
+                ? t('scanner:chips.idFound', '✓ ID: {{value}}', { value: draftFields.idNumber.value })
+                : t('scanner:chips.idScanning', '○ Scanning for ID Number…')}
             </span>
             <span className={`scanner-chip ${draftFields.dateOfBirth?.value ? '' : 'missing'}`}>
-              {draftFields.dateOfBirth?.value ? `✓ DOB: ${draftFields.dateOfBirth.value}` : '○ Scanning for DOB…'}
+              {draftFields.dateOfBirth?.value
+                ? t('scanner:chips.dobFound', '✓ DOB: {{value}}', { value: draftFields.dateOfBirth.value })
+                : t('scanner:chips.dobScanning', '○ Scanning for DOB…')}
             </span>
             {draftFields.documentType?.hasAddress && (
               <span className={`scanner-chip ${draftFields.address?.value ? '' : 'missing'}`}>
-                {draftFields.address?.value ? `✓ Address Found` : '○ Address (Can fill manually)'}
+                {draftFields.address?.value
+                  ? t('scanner:chips.addressFound', '✓ Address Found')
+                  : t('scanner:chips.addressScanning', '○ Address (Can fill manually)')}
               </span>
             )}
           </div>
@@ -428,15 +469,19 @@ function DocumentScanner() {
           onConfirm={() => commitFields(draftFields)}
           onCancel={() => {
             setShowCorrection(false)
-            setStatus('Position your identity document inside the frame and hold steady.')
+            setStatus(t('scanner:status.initial', 'Position your identity document inside the frame and hold steady.'))
           }}
         />
       )}
 
-      {/* DEFAULT SCANNER CONTROLS (when not in correction form or verified screen) */}
+      {/* DEFAULT SCANNER CONTROLS */}
       {!showCorrection && !isVerified && (
         <>
-          <p className="scan-status">{isReading ? 'Reading document carefully… Hold steady.' : status}</p>
+          <p className="scan-status">
+            {isReading
+              ? t('scanner:status.reading', 'Reading document carefully… Hold steady.')
+              : status}
+          </p>
           {ocrError && <p className="error-banner">{ocrError}</p>}
           <div className="action-row">
             <button
@@ -445,10 +490,12 @@ function DocumentScanner() {
               onClick={() => captureFrame(true)}
               disabled={isReading || !stream}
             >
-              {isReading ? 'Reading…' : 'Capture document'}
+              {isReading
+                ? t('scanner:buttons.reading', 'Reading…')
+                : t('scanner:buttons.capture', 'Capture document')}
             </button>
             <label className="secondary-button upload-button">
-              Upload photo
+              {t('scanner:buttons.upload', 'Upload photo')}
               <input type="file" accept="image/*" onChange={onUpload} hidden />
             </label>
             {hasAnyDetectedField && (
@@ -457,7 +504,7 @@ function DocumentScanner() {
                 type="button"
                 onClick={() => setShowCorrection(true)}
               >
-                Review captured details
+                {t('scanner:buttons.reviewCaptured', 'Review captured details')}
               </button>
             )}
             <button
@@ -468,13 +515,15 @@ function DocumentScanner() {
                 setShowCorrection(true)
               }}
             >
-              Enter details manually
+              {t('scanner:buttons.enterManual', 'Enter details manually')}
             </button>
             {buttonNavigation && (
-              <span className="scan-status">Use the buttons below to continue without camera access.</span>
+              <span className="scan-status">
+                {t('scanner:buttonNavPrompt', 'Use the buttons below to continue without camera access.')}
+              </span>
             )}
             <button className="secondary-button" type="button" onClick={goHome}>
-              Back
+              {t('scanner:buttons.back', 'Back')}
             </button>
           </div>
         </>

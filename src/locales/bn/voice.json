@@ -1,0 +1,64 @@
+{
+  "eyebrow": "ভয়েস নেভিগেশন সহায়ক",
+  "title": "আপনার কী প্রয়োজন জানান",
+  "lead": "ভয়েস শনাক্তকরণ সক্রিয় রয়েছে এবং শুনছে। বোতাম স্পর্শ না করেই কথা বলে নেভিগেট করুন।",
+  "status": {
+    "listeningSpeech": "কথা শোনা হচ্ছে…",
+    "listeningMic": "মাইক্রোফোন শুনছে…",
+    "connecting": "মাইক্রোফোন যুক্ত হচ্ছে…",
+    "paused": "মাইক্রোফোন স্থগিত"
+  },
+  "hearing": "শোনা গেছে: “{{transcript}}”",
+  "speakPrompt": "মাইক্রোফোনে কথা বলুন — বলুন “explore schemes” বা “প্রকল্প খুঁজুন”",
+  "chips": {
+    "explore": "🗣️ “explore schemes” → স্ক্যানার খুলুন",
+    "find": "🗣️ “find schemes” → প্রকল্প দেখুন",
+    "emergency": "🗣️ “emergency” → জরুরি সহায়তা",
+    "home": "🗣️ “go home” → প্রধান মেনু"
+  },
+  "micRetry": "মাইক্রোফোন আবার চেষ্টা করুন",
+  "openScanner": "স্ক্যানার খুলুন →",
+  "muteMic": "মাইক বন্ধ করুন",
+  "unmuteMic": "মাইক চালু করুন",
+  "muteShort": "মাইক বন্ধ",
+  "unmuteShort": "মাইক চালু",
+  "exitVoice": "ভয়েস মোড বন্ধ",
+  "talkToNavigate": "কথা বলে নেভিগেট করুন",
+  "voiceNavigatorListening": "ভয়েস নেভিগেটর: শুনছে…",
+  "voiceNavigatorConnecting": "মাইক যুক্ত হচ্ছে…",
+  "voiceNavigatorPaused": "ভয়েস নেভিগেটর: স্থগিত",
+  "fallback": {
+    "unavailable": "ভয়েস ইনপুট অনুপলব্ধ। টাইপ করে নির্দেশ দিন।",
+    "unclear": "কথা স্পষ্ট ছিল না। টাইপ করে নির্দেশ দিন।",
+    "general": "আপনি টাইপ করেও নির্দেশ দিতে পারেন",
+    "placeholder": "নির্দেশ লিখুন, যেমন: explore schemes"
+  },
+  "hints": {
+    "home": "বলুন “explore schemes”, “voice mode”, বা “emergency”",
+    "voice": "বলুন “explore schemes”, “emergency”, বা “go home”",
+    "scanner": "বলুন “capture”, “upload”, “find scheme”, বা “go home”",
+    "confirm": "বলুন “find scheme”, “rescan”, বা “go home”",
+    "schemes": "বলুন “choose scheme 1”, “choose scheme 2”, বা “go back”",
+    "application": "বলুন “save pdf”, “back to schemes”, বা “go home”",
+    "submitted": "বলুন “save pdf”, “download pdf”, বা “go home”",
+    "emergency": "বলুন “go home” বা “go back”"
+  },
+  "spoken": {
+    "voiceReady": "ভয়েস সহায়ক প্রস্তুত। স্ক্যান করতে 'explore schemes' বা 'find schemes' বলুন।",
+    "scannerReady": "নথি স্ক্যানার প্রস্তুত। কার্ড সামনে রাখুন এবং 'find scheme' বলুন।",
+    "confirmDetails": "তথ্য পরীক্ষা করুন {{name}}। প্রকল্প দেখতে 'find scheme' বলুন।",
+    "schemesFound": "{{count}}টি প্রকল্প পাওয়া গেছে। প্রথম প্রকল্পের জন্য 'choose scheme 1' বলুন।",
+    "noSchemes": "কোনো প্রকল্প মেলেনি। 'rescan' বা 'go back' বলুন।",
+    "appReview": "{{scheme}}-এর জন্য আবেদন পর্যালোচনা। 'save pdf' বলুন।",
+    "appSubmitted": "আবেদন সম্পন্ন হয়েছে। ফাইল ডাউনলোড করতে 'save pdf' বলুন।",
+    "openingEmergency": "জরুরি সহায়তা খোলা হচ্ছে।",
+    "goingBack": "ফিরে যাচ্ছি।",
+    "openingScanner": "স্ক্যানার খোলা হচ্ছে।",
+    "capturingDoc": "নথি ক্যাপচার করা হচ্ছে।",
+    "restartingScanner": "স্ক্যানার পুনরায় শুরু করা হচ্ছে।",
+    "findingSchemes": "প্রকল্প খোঁজা হচ্ছে।",
+    "selectedScheme": "{{name}} নির্বাচিত হয়েছে।",
+    "appGenerated": "আবেদন তৈরি হয়েছে।",
+    "pdfDownloaded": "আবেদন পিডিএফ ডাউনলোড হয়েছে।"
+  }
+}

@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { getSpeechLang } from '../../i18n/speechLangMap'
 
 function getSpeechRecognition() {
   if (typeof window === 'undefined') return null
@@ -6,12 +8,17 @@ function getSpeechRecognition() {
 }
 
 export function useSpeechRecognition(onSpeechResult, options = {}) {
-  const { continuous = true, autoStart = false } = options
+  const { continuous = true, autoStart = false, lang: explicitLang } = options
+  const { i18n } = useTranslation()
+  const currentLang = explicitLang || (i18n.language ? i18n.language.split('-')[0] : 'en')
+  const speechLang = getSpeechLang(currentLang)
+
   const Recognition = getSpeechRecognition()
   const recognitionRef = useRef(null)
   const onResultRef = useRef(onSpeechResult)
   const isActiveRef = useRef(false)
   const restartTimerRef = useRef(null)
+  const startRef = useRef(null)
 
   const [transcript, setTranscript] = useState('')
   const [isListening, setIsListening] = useState(false)
@@ -26,7 +33,10 @@ export function useSpeechRecognition(onSpeechResult, options = {}) {
 
   const stop = useCallback(() => {
     isActiveRef.current = false
-    if (restartTimerRef.current) clearTimeout(restartTimerRef.current)
+    if (restartTimerRef.current) {
+      clearTimeout(restartTimerRef.current)
+      restartTimerRef.current = null
+    }
     try {
       if (recognitionRef.current) {
         recognitionRef.current.abort()
@@ -39,6 +49,14 @@ export function useSpeechRecognition(onSpeechResult, options = {}) {
     setSpeechDetected(false)
   }, [])
 
+  const scheduleRestart = useCallback((delay = 120) => {
+    if (!isActiveRef.current || restartTimerRef.current) return
+    restartTimerRef.current = setTimeout(() => {
+      restartTimerRef.current = null
+      if (isActiveRef.current) startRef.current?.()
+    }, delay)
+  }, [])
+
   const start = useCallback(() => {
     const Ctor = getSpeechRecognition()
     if (!Ctor) {
@@ -46,7 +64,10 @@ export function useSpeechRecognition(onSpeechResult, options = {}) {
       return
     }
 
-    if (restartTimerRef.current) clearTimeout(restartTimerRef.current)
+    if (restartTimerRef.current) {
+      clearTimeout(restartTimerRef.current)
+      restartTimerRef.current = null
+    }
     isActiveRef.current = true
     setError(null)
 
@@ -62,8 +83,7 @@ export function useSpeechRecognition(onSpeechResult, options = {}) {
       }
 
       const recognition = new Ctor()
-      const browserLang = (typeof navigator !== 'undefined' && navigator.language) || 'en-IN'
-      recognition.lang = browserLang
+      recognition.lang = speechLang
       recognition.continuous = continuous
       recognition.interimResults = true
       recognition.maxAlternatives = 3
@@ -147,7 +167,6 @@ export function useSpeechRecognition(onSpeechResult, options = {}) {
           return
         }
         if (event.error === 'no-speech' || event.error === 'aborted') {
-          // Normal background silence / restart event
           return
         }
         if (event.error === 'network') {
@@ -157,28 +176,31 @@ export function useSpeechRecognition(onSpeechResult, options = {}) {
       }
 
       recognition.onend = () => {
+        if (recognitionRef.current !== recognition) return
         setIsListening(false)
         setSpeechDetected(false)
         recognitionRef.current = null
 
-        // If still active, seamlessly restart with a fresh Ctor instance
         if (isActiveRef.current) {
-          restartTimerRef.current = setTimeout(() => {
-            if (isActiveRef.current) {
-              start()
-            }
-          }, 80)
+          scheduleRestart()
         }
       }
 
       recognition.start()
       setIsListening(true)
     } catch (err) {
-      if (err.name !== 'InvalidStateError') {
+      recognitionRef.current = null
+      if (err.name === 'InvalidStateError') {
+        scheduleRestart(250)
+      } else {
         setError(err.message || 'Could not start microphone voice input.')
       }
     }
-  }, [continuous])
+  }, [continuous, scheduleRestart, speechLang])
+
+  useEffect(() => {
+    startRef.current = start
+  }, [start])
 
   useEffect(() => {
     if (autoStart && Recognition) {
@@ -186,7 +208,10 @@ export function useSpeechRecognition(onSpeechResult, options = {}) {
     }
     return () => {
       isActiveRef.current = false
-      if (restartTimerRef.current) clearTimeout(restartTimerRef.current)
+      if (restartTimerRef.current) {
+        clearTimeout(restartTimerRef.current)
+        restartTimerRef.current = null
+      }
       try {
         if (recognitionRef.current) {
           recognitionRef.current.abort()

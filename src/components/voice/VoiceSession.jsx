@@ -1,26 +1,18 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigation } from '../../context/NavigationContext'
 import { useCitizen } from '../../context/CitizenContext'
 import { useOneKeyNav } from '../common/OneKeyNavProvider'
 import { matchSchemes } from '../schemes/matchEngine'
 import { generateApplicationPDF } from '../application/generateApplicationPDF'
+import { getLocalizedField } from '../schemes/SchemesScreen'
 import { parseVoiceCommand } from './parseVoiceIntent'
 import { useSpeechRecognition } from './useSpeechRecognition'
 import { useTextToSpeech } from './useTextToSpeech'
 import { VoiceControlContext } from './VoiceContext'
 
-const SCREEN_HINTS = {
-  home: 'Say “explore schemes”, “voice mode”, or “emergency”',
-  voice: 'Say “explore schemes”, “emergency”, or “go home”',
-  scanner: 'Say “capture”, “upload”, “find scheme”, or “go home”',
-  confirm: 'Say “find scheme”, “rescan”, or “go home”',
-  schemes: 'Say “choose scheme 1”, “choose scheme 2”, or “go back”',
-  application: 'Say “save pdf”, “back to schemes”, or “go home”',
-  submitted: 'Say “save pdf”, “download pdf”, or “go home”',
-  emergency: 'Say “go home” or “go back”',
-}
-
 export function VoiceSessionProvider({ children }) {
+  const { t, i18n } = useTranslation(['voice', 'common'])
   const { currentScreen, entryMode, navigateTo, goHome, setAnnouncement } = useNavigation()
   const { citizenData, matchedSchemes, setMatchedSchemes, selectedScheme, setSelectedScheme } = useCitizen()
   const { runPrimaryAction, runBackAction } = useOneKeyNav()
@@ -33,6 +25,7 @@ export function VoiceSessionProvider({ children }) {
   const lastHandledIntentRef = useRef('')
   const lastSpokenScreenRef = useRef('')
   const inVoiceMode = entryMode === 'voice' && currentScreen !== 'home'
+  const currentLang = i18n.language || 'en'
 
   const showToast = useCallback((msg) => {
     setFeedback(msg)
@@ -51,27 +44,58 @@ export function VoiceSessionProvider({ children }) {
     lastSpokenScreenRef.current = currentScreen
 
     if (currentScreen === 'voice') {
-      speak('Voice assistant ready. Say explore schemes to scan your document, or say find schemes.')
+      speak(
+        t(
+          'voice:spoken.voiceReady',
+          'Voice assistant ready. Say explore schemes to scan your document, or say find schemes.',
+        ),
+      )
     } else if (currentScreen === 'scanner') {
-      speak('Document scanner ready. Position your document. Say find scheme when ready.')
+      speak(
+        t(
+          'voice:spoken.scannerReady',
+          'Document scanner ready. Position your document. Say find scheme when ready.',
+        ),
+      )
     } else if (currentScreen === 'confirm') {
       const name = citizenData.name ? `for ${citizenData.name}` : ''
-      speak(`Check your details ${name}. Say find scheme to see your welfare schemes, or rescan.`)
+      speak(
+        t(
+          'voice:spoken.confirmDetails',
+          'Check your details {{name}}. Say find scheme to see your welfare schemes, or rescan.',
+          { name },
+        ),
+      )
     } else if (currentScreen === 'schemes') {
       const count = matchedSchemes.length
       if (count > 0) {
-        const first = matchedSchemes[0]?.name || 'the first scheme'
-        speak(`${count} matching schemes found. Say choose scheme 1 for ${first}, or choose scheme 2.`)
+        const first = matchedSchemes[0]
+          ? getLocalizedField(matchedSchemes[0].name, currentLang)
+          : 'the first scheme'
+        speak(
+          t(
+            'voice:spoken.schemesFound',
+            '{{count}} matching schemes found. Say choose scheme 1 for {{first}}, or choose scheme 2.',
+            { count, first },
+          ),
+        )
       } else {
-        speak('No matching schemes found. Say rescan or go back.')
+        speak(t('voice:spoken.noSchemes', 'No matching schemes found. Say rescan or go back.'))
       }
     } else if (currentScreen === 'application') {
-      const schemeName = selectedScheme?.name || matchedSchemes[0]?.name || 'scheme'
-      speak(`Application review for ${schemeName}. Say save pdf to generate your application.`)
+      const active = selectedScheme || matchedSchemes[0]
+      const schemeName = active ? getLocalizedField(active.name, currentLang) : 'scheme'
+      speak(
+        t(
+          'voice:spoken.appReview',
+          'Application review for {{scheme}}. Say save pdf to generate your application.',
+          { scheme: schemeName },
+        ),
+      )
     } else if (currentScreen === 'submitted') {
-      speak('Application completed. Say save pdf to download your file.')
+      speak(t('voice:spoken.appSubmitted', 'Application completed. Say save pdf to download your file.'))
     }
-  }, [currentScreen, inVoiceMode, citizenData.name, matchedSchemes, selectedScheme, speak, stopTts])
+  }, [currentScreen, inVoiceMode, citizenData.name, matchedSchemes, selectedScheme, speak, stopTts, t, currentLang])
 
   const executeVoiceCommand = useCallback((cmd) => {
     if (!cmd || !cmd.intent) return
@@ -79,7 +103,7 @@ export function VoiceSessionProvider({ children }) {
     showToast(`🎙️ Spoken: "${raw}"`)
 
     if (intent === 'emergency') {
-      speak('Opening emergency help.')
+      speak(t('voice:spoken.openingEmergency', 'Opening emergency help.'))
       navigateTo('emergency', 'voice', 'Emergency help is available')
       return
     }
@@ -91,7 +115,7 @@ export function VoiceSessionProvider({ children }) {
     }
 
     if (intent === 'back') {
-      speak('Going back.')
+      speak(t('voice:spoken.goingBack', 'Going back.'))
       runBackAction()
       return
     }
@@ -99,7 +123,7 @@ export function VoiceSessionProvider({ children }) {
     // Voice assistant / Home screen
     if (currentScreen === 'voice' || currentScreen === 'home') {
       if (intent === 'explore' || intent === 'find_schemes' || intent === 'capture' || intent === 'upload') {
-        speak('Opening document scanner.')
+        speak(t('voice:spoken.openingScanner', 'Opening document scanner.'))
         navigateTo('scanner', 'voice', 'Document scanner opened')
         return
       }
@@ -108,17 +132,17 @@ export function VoiceSessionProvider({ children }) {
     // Scanner screen
     if (currentScreen === 'scanner') {
       if (intent === 'find_schemes' || intent === 'proceed') {
-        speak('Proceeding to confirm details.')
+        speak(t('voice:spoken.confirmDetails', 'Proceeding to confirm details.'))
         runPrimaryAction()
         return
       }
       if (intent === 'capture') {
-        speak('Capturing document.')
+        speak(t('voice:spoken.capturingDoc', 'Capturing document.'))
         runPrimaryAction()
         return
       }
       if (intent === 'rescan') {
-        speak('Restarting document scanner.')
+        speak(t('voice:spoken.restartingScanner', 'Restarting document scanner.'))
         runPrimaryAction()
         return
       }
@@ -126,16 +150,17 @@ export function VoiceSessionProvider({ children }) {
 
     // Confirm screen
     if (currentScreen === 'confirm') {
-      if (intent === 'find_schemes' || intent === 'proceed') {
+      if (intent === 'find_schemes' || intent === 'proceed' || intent === 'choose_scheme') {
         const matches = matchSchemes(citizenData)
         setMatchedSchemes(matches)
-        setSelectedScheme(matches[0] || null)
-        speak('Finding matching schemes for your confirmed details.')
+        const targetIdx = (index || 1) - 1
+        setSelectedScheme(matches[targetIdx] || matches[0] || null)
+        speak(t('voice:spoken.findingSchemes', 'Finding matching schemes for your confirmed details.'))
         navigateTo('schemes', 'voice', 'Eligible schemes are ready to explore')
         return
       }
       if (intent === 'rescan') {
-        speak('Restarting document scanner.')
+        speak(t('voice:spoken.restartingScanner', 'Restarting document scanner.'))
         navigateTo('scanner', 'voice', 'Document scanner restarted')
         return
       }
@@ -148,21 +173,34 @@ export function VoiceSessionProvider({ children }) {
         const chosen = matchedSchemes[targetIdx] || matchedSchemes[0]
         if (chosen) {
           setSelectedScheme(chosen)
-          speak(`Selected ${chosen.name}. Opening application review.`)
-          navigateTo('application', 'voice', `Selected ${chosen.name}`)
+          const chosenName = getLocalizedField(chosen.name, currentLang)
+          speak(
+            t('voice:spoken.selectedScheme', 'Selected {{name}}. Opening application review.', {
+              name: chosenName,
+            }),
+          )
+          navigateTo('application', 'voice', `Selected ${chosenName}`)
           return
         }
+        speak(t('voice:spoken.noSchemes', 'No matching schemes found. Say rescan or go back.'))
+        showToast(t('voice:spoken.noSchemes', 'No matching schemes found. Say rescan or go back.'))
+        return
       }
       if (intent === 'find_schemes' || intent === 'proceed') {
         if (matchedSchemes[0]) {
           setSelectedScheme(matchedSchemes[0])
-          speak(`Selected ${matchedSchemes[0].name}. Opening application review.`)
-          navigateTo('application', 'voice', `Selected ${matchedSchemes[0].name}`)
+          const chosenName = getLocalizedField(matchedSchemes[0].name, currentLang)
+          speak(
+            t('voice:spoken.selectedScheme', 'Selected {{name}}. Opening application review.', {
+              name: chosenName,
+            }),
+          )
+          navigateTo('application', 'voice', `Selected ${chosenName}`)
           return
         }
       }
       if (intent === 'rescan') {
-        speak('Returning to scanner.')
+        speak(t('voice:spoken.restartingScanner', 'Returning to scanner.'))
         navigateTo('scanner', 'voice', 'Scanner reopened')
         return
       }
@@ -171,7 +209,7 @@ export function VoiceSessionProvider({ children }) {
     // Application review screen
     if (currentScreen === 'application') {
       if (intent === 'save_pdf' || intent === 'proceed' || intent === 'find_schemes') {
-        speak('Application generated. Ready to download.')
+        speak(t('voice:spoken.appGenerated', 'Application generated. Ready to download.'))
         navigateTo('submitted', 'voice', 'Your application is ready to download')
         return
       }
@@ -187,7 +225,7 @@ export function VoiceSessionProvider({ children }) {
         const targetScheme = selectedScheme || matchedSchemes[0]
         const doc = generateApplicationPDF(citizenData, targetScheme)
         doc.save('application.pdf')
-        speak('Application PDF downloaded.')
+        speak(t('voice:spoken.pdfDownloaded', 'Application PDF downloaded.'))
         showToast('✅ Application PDF saved!')
         return
       }
@@ -204,6 +242,7 @@ export function VoiceSessionProvider({ children }) {
     }
   }, [
     citizenData,
+    currentLang,
     currentScreen,
     goHome,
     matchedSchemes,
@@ -216,6 +255,7 @@ export function VoiceSessionProvider({ children }) {
     showToast,
     speak,
     stopTts,
+    t,
   ])
 
   const handleSpeechResult = useCallback(({ transcript, isFinal, confidence }) => {
@@ -306,7 +346,7 @@ export function VoiceSessionProvider({ children }) {
     ],
   )
 
-  const currentHint = SCREEN_HINTS[currentScreen] || 'Say “go home” to return'
+  const currentHint = t(`voice:hints.${currentScreen}`, 'Say “go home” to return')
 
   return (
     <VoiceControlContext.Provider value={value}>
@@ -322,12 +362,18 @@ export function VoiceSessionProvider({ children }) {
               <div className="voice-hud-text">
                 <div className="voice-hud-title-row">
                   <strong className="voice-hud-title">
-                    {voiceEnabled ? (isListening ? 'Voice Navigator: Listening…' : 'Connecting Mic…') : 'Voice Navigator: Paused'}
+                    {voiceEnabled
+                      ? isListening
+                        ? t('voice:voiceNavigatorListening', 'Voice Navigator: Listening…')
+                        : t('voice:voiceNavigatorConnecting', 'Connecting Mic…')
+                      : t('voice:voiceNavigatorPaused', 'Voice Navigator: Paused')}
                   </strong>
-                  <span className="voice-hud-badge">Talk to Navigate</span>
+                  <span className="voice-hud-badge">{t('voice:talkToNavigate', 'Talk to Navigate')}</span>
                 </div>
                 <p className="voice-hud-transcript">
-                  {transcript ? `Hearing: "${transcript}"` : currentHint}
+                  {transcript
+                    ? t('voice:hearing', 'Hearing: “{{transcript}}”', { transcript })
+                    : currentHint}
                 </p>
               </div>
             </div>
@@ -337,19 +383,19 @@ export function VoiceSessionProvider({ children }) {
                 type="button"
                 className={`voice-hud-btn ${voiceEnabled ? 'btn-active' : 'btn-paused'}`}
                 onClick={toggleMic}
-                title={voiceEnabled ? 'Mute microphone' : 'Unmute microphone'}
-                aria-label={voiceEnabled ? 'Mute microphone' : 'Unmute microphone'}
+                title={voiceEnabled ? t('voice:muteMic', 'Mute microphone') : t('voice:unmuteMic', 'Unmute microphone')}
+                aria-label={voiceEnabled ? t('voice:muteMic', 'Mute microphone') : t('voice:unmuteMic', 'Unmute microphone')}
               >
-                {voiceEnabled ? 'Mute Mic' : 'Unmute'}
+                {voiceEnabled ? t('voice:muteShort', 'Mute Mic') : t('voice:unmuteShort', 'Unmute')}
               </button>
               <button
                 type="button"
                 className="voice-hud-btn secondary"
                 onClick={goHome}
-                title="Exit Voice Mode"
-                aria-label="Exit Voice Mode"
+                title={t('voice:exitVoice', 'Exit Voice')}
+                aria-label={t('voice:exitVoice', 'Exit Voice')}
               >
-                Exit Voice
+                {t('voice:exitVoice', 'Exit Voice')}
               </button>
             </div>
           </div>

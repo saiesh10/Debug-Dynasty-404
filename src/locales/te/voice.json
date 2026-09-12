@@ -1,0 +1,64 @@
+{
+  "eyebrow": "వాయిస్ నావిగేషన్ అసిస్టెంట్",
+  "title": "మీకు ఏమి కావాలో చెప్పండి",
+  "lead": "వాయిస్ రికగ్నిషన్ సక్రియంగా ఉంది మరియు వింటోంది. బటన్లను తాకకుండా నావిగేట్ చేయడానికి మాట్లాడండి.",
+  "status": {
+    "listeningSpeech": "మాటలను వింటోంది…",
+    "listeningMic": "మైక్రోఫోన్ వింటోంది…",
+    "connecting": "మైక్రోఫోన్ కనెక్ట్ అవుతోంది…",
+    "paused": "మైక్రోఫోన్ పాజ్ చేయబడింది"
+  },
+  "hearing": "విన్నది: “{{transcript}}”",
+  "speakPrompt": "మైక్రోఫోన్‌లో మాట్లాడండి — “explore schemes” లేదా “పథకాలను వెతకండి” అని చెప్పండి",
+  "chips": {
+    "explore": "🗣️ “explore schemes” → స్కానర్ తెరవండి",
+    "find": "🗣️ “find schemes” → పథకాలు చూడండి",
+    "emergency": "🗣️ “emergency” → అత్యవసర సహాయం",
+    "home": "🗣️ “go home” → ప్రధాన మెనూ"
+  },
+  "micRetry": "మైక్రోఫోన్‌ను మళ్లీ ప్రయత్నించండి",
+  "openScanner": "స్కానర్ తెరవండి →",
+  "muteMic": "మైక్ ఆపివేయండి",
+  "unmuteMic": "మైక్ ప్రారంభించండి",
+  "muteShort": "మైక్ మ్యూట్",
+  "unmuteShort": "అన్‌మ్యూట్",
+  "exitVoice": "వాయిస్ నిష్క్రమించు",
+  "talkToNavigate": "మాట్లాడి నావిగేట్ చేయండి",
+  "voiceNavigatorListening": "వాయిస్ నావిగేటర్: వింటోంది…",
+  "voiceNavigatorConnecting": "మైక్ కనెక్ట్ అవుతోంది…",
+  "voiceNavigatorPaused": "వాయిస్ నావిగేటర్: పాజ్ చేయబడింది",
+  "fallback": {
+    "unavailable": "వాయిస్ ఇన్‌పుట్ అందుబాటులో లేదు. బదులుగా టైప్ చేయండి.",
+    "unclear": "మాటలు స్పష్టంగా లేవు. బదులుగా టైప్ చేయండి.",
+    "general": "మీరు కమాండ్‌ను టైప్ కూడా చేయవచ్చు",
+    "placeholder": "కమాండ్ టైప్ చేయండి, ఉదా: explore schemes"
+  },
+  "hints": {
+    "home": "“explore schemes”, “voice mode”, లేదా “emergency” అని చెప్పండి",
+    "voice": "“explore schemes”, “emergency”, లేదా “go home” అని చెప్పండి",
+    "scanner": "“capture”, “upload”, “find scheme”, లేదా “go home” అని చెప్పండి",
+    "confirm": "“find scheme”, “rescan”, లేదా “go home” అని చెప్పండి",
+    "schemes": "“choose scheme 1”, “choose scheme 2”, లేదా “go back” అని చెప్పండి",
+    "application": "“save pdf”, “back to schemes”, లేదా “go home” అని చెప్పండి",
+    "submitted": "“save pdf”, “download pdf”, లేదా “go home” అని చెప్పండి",
+    "emergency": "“go home” లేదా “go back” అని చెప్పండి"
+  },
+  "spoken": {
+    "voiceReady": "వాయిస్ అసిస్టెంట్ సిద్ధంగా ఉంది. స్కాన్ చేయడానికి 'explore schemes' లేదా 'find schemes' అని చెప్పండి.",
+    "scannerReady": "డాక్యుమెంట్ స్కానర్ సిద్ధంగా ఉంది. కార్డును ఉంచి 'find scheme' అని చెప్పండి.",
+    "confirmDetails": "వివరాలను తనిఖీ చేయండి {{name}}. పథకాలను చూడటానికి 'find scheme' అని చెప్పండి.",
+    "schemesFound": "{{count}} పథకాలు లభించాయి. మొదటి పథకం కోసం 'choose scheme 1' అని చెప్పండి.",
+    "noSchemes": "పథకాలు ఏవీ సరిపోలలేదు. 'rescan' లేదా 'go back' అని చెప్పండి.",
+    "appReview": "{{scheme}} కోసం దరఖాస్తు సమీక్ష. 'save pdf' అని చెప్పండి.",
+    "appSubmitted": "దరఖాస్తు పూర్తయింది. ఫైల్ డౌన్‌లోడ్ కోసం 'save pdf' అని చెప్పండి.",
+    "openingEmergency": "అత్యవసర సహాయం తెరుస్తున్నాం.",
+    "goingBack": "వెనుకకు వెళ్తున్నాం.",
+    "openingScanner": "స్కానర్ తెరుస్తున్నాం.",
+    "capturingDoc": "డాక్యుమెంట్‌ను క్యాప్చర్ చేస్తున్నాం.",
+    "restartingScanner": "స్కానర్‌ను పునఃప్రారంభిస్తున్నాం.",
+    "findingSchemes": "పథకాలను వెతుకుతున్నాం.",
+    "selectedScheme": "{{name}} ఎంపిక చేయబడింది.",
+    "appGenerated": "దరఖాస్తు సిద్ధమైంది.",
+    "pdfDownloaded": "దరఖాస్తు పీడీఎఫ్ డౌన్‌లోడ్ అయింది."
+  }
+}

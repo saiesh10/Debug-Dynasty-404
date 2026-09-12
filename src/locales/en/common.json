@@ -1,0 +1,38 @@
+{
+  "appName": "DivyangSetu",
+  "tagline": "Public support should feel within reach.",
+  "eyebrow": "Your access, your choice",
+  "intro": "DivyangSetu helps you discover disability welfare schemes through the way that feels most comfortable to you. Your identity details stay on this device.",
+  "status": {
+    "private": "Private by design · runs on your device",
+    "ready": "DivyangSetu is ready",
+    "modePrompt": "Choose how you would like to use DivyangSetu",
+    "showing": "Now showing {{screen}}"
+  },
+  "nav": {
+    "home": "Home",
+    "back": "Back",
+    "confirm": "Confirm",
+    "changeMode": "Change mode",
+    "needHelp": "Need help?",
+    "clearData": "Clear my data",
+    "howGesturesWork": "How gestures work",
+    "emergencyHelp": "Emergency help",
+    "loading": "Loading…"
+  },
+  "footer": {
+    "quote": "Designed for dignity, access, and clarity."
+  },
+  "modePicker": {
+    "gestureTitle": "Gesture",
+    "gestureDesc": "Five poses. A guide explains each one the first time you enter.",
+    "voiceTitle": "Voice",
+    "voiceDesc": "Speak commands to navigate.",
+    "scannerTitle": "Scanner",
+    "scannerDesc": "Scan a document for details."
+  },
+  "languageSwitcher": {
+    "label": "Choose language",
+    "ariaLabel": "Select display language"
+  }
+}

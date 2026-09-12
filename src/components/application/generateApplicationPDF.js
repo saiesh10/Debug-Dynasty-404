@@ -1,5 +1,11 @@
 import { jsPDF } from 'jspdf'
 
+function formatSchemeField(field, fallback = '') {
+  if (!field) return fallback
+  if (typeof field === 'string') return field
+  return field.en || Object.values(field)[0] || fallback
+}
+
 export function generateApplicationPDF(citizenData = {}, scheme = {}) {
   const doc = new jsPDF()
   const referenceNumber = `DS-${Date.now()}`
@@ -7,7 +13,8 @@ export function generateApplicationPDF(citizenData = {}, scheme = {}) {
   const dob = citizenData.dateOfBirth || 'Not provided'
   const idNumber = citizenData.idNumber || 'Not provided'
   const address = citizenData.address || 'Not provided'
-  const schemeName = scheme.name || 'Disability support scheme'
+  const schemeName = formatSchemeField(scheme.name, 'Disability support scheme')
+  const schemeDetail = formatSchemeField(scheme.detail, 'See scheme listing in the app')
 
   doc.setFillColor(8, 127, 119)
   doc.rect(0, 0, 210, 28, 'F')
@@ -31,7 +38,7 @@ export function generateApplicationPDF(citizenData = {}, scheme = {}) {
     ['Date of birth', dob],
     ['Address', address],
     ['Matched scheme', schemeName],
-    ['Scheme detail', scheme.detail || 'See scheme listing in the app'],
+    ['Scheme detail', schemeDetail],
     ['Support amount', scheme.amount || 'As per scheme rules'],
   ]
 

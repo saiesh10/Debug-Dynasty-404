@@ -1,0 +1,64 @@
+{
+  "eyebrow": "व्हॉइस नेव्हिगेशन सहाय्यक",
+  "title": "तुम्हाला काय हवे आहे ते सांगा",
+  "lead": "आवाज ओळख सक्रिय आहे आणि ऐकत आहे. बटणे न दाबता नेव्हिगेट करण्यासाठी बोला.",
+  "status": {
+    "listeningSpeech": "आवाज ऐकत आहे…",
+    "listeningMic": "मायक्रोफोन ऐकत आहे…",
+    "connecting": "मायक्रोफोन जोडत आहे…",
+    "paused": "मायक्रोफोन थांबवला आहे"
+  },
+  "hearing": "ऐकले: “{{transcript}}”",
+  "speakPrompt": "मायक्रोफोनमध्ये बोला — म्हणा “explore schemes” किंवा “find schemes”",
+  "chips": {
+    "explore": "🗣️ “explore schemes” → स्कॅनर उघडा",
+    "find": "🗣️ “find schemes” → योजना तपासा",
+    "emergency": "🗣️ “emergency” → तातडीची मदत",
+    "home": "🗣️ “go home” → मुख्य मेनू"
+  },
+  "micRetry": "मायक्रोफोन पुन्हा सुरू करा",
+  "openScanner": "स्कॅनर उघडा →",
+  "muteMic": "माइक बंद करा",
+  "unmuteMic": "माइक सुरू करा",
+  "muteShort": "माइक बंद",
+  "unmuteShort": "माइक सुरू",
+  "exitVoice": "व्हॉइस मोड बंद करा",
+  "talkToNavigate": "बोलून नेव्हिगेट करा",
+  "voiceNavigatorListening": "व्हॉइस नेव्हिगेटर: ऐकत आहे…",
+  "voiceNavigatorConnecting": "माइक जोडत आहे…",
+  "voiceNavigatorPaused": "व्हॉइस नेव्हिगेटर: थांबवला",
+  "fallback": {
+    "unavailable": "व्हॉइस इनपुट अनुपलब्ध आहे. त्याऐवजी टाईप करा.",
+    "unclear": "आवाज स्पष्ट नव्हता. त्याऐवजी टाईप करा.",
+    "general": "तुम्ही टाईप करूनही आज्ञा देऊ शकता",
+    "placeholder": "आज्ञा टाईप करा, उदा: explore schemes"
+  },
+  "hints": {
+    "home": "म्हणा “explore schemes”, “voice mode”, किंवा “emergency”",
+    "voice": "म्हणा “explore schemes”, “emergency”, किंवा “go home”",
+    "scanner": "म्हणा “capture”, “upload”, “find scheme”, किंवा “go home”",
+    "confirm": "म्हणा “find scheme”, “rescan”, किंवा “go home”",
+    "schemes": "म्हणा “choose scheme 1”, “choose scheme 2”, किंवा “go back”",
+    "application": "म्हणा “save pdf”, “back to schemes”, किंवा “go home”",
+    "submitted": "म्हणा “save pdf”, “download pdf”, किंवा “go home”",
+    "emergency": "म्हणा “go home” किंवा “go back”"
+  },
+  "spoken": {
+    "voiceReady": "व्हॉइस सहाय्यक तयार आहे. स्कॅन करण्यासाठी 'explore schemes' किंवा 'find schemes' म्हणा.",
+    "scannerReady": "दस्तऐवज स्कॅनर तयार आहे. कार्ड समोर धरा आणि 'find scheme' म्हणा.",
+    "confirmDetails": "तुमचे तपशील तपासा {{name}}. योजना पाहण्यासाठी 'find scheme' म्हणा.",
+    "schemesFound": "{{count}} योजना सापडल्या. योजनेसाठी 'choose scheme 1' म्हणा.",
+    "noSchemes": "कोणतीही योजना सापडली नाही. 'rescan' किंवा 'go back' म्हणा.",
+    "appReview": "{{scheme}} साठी अर्ज पुनरावलोकन. अर्ज तयार करण्यासाठी 'save pdf' म्हणा.",
+    "appSubmitted": "अर्ज पूर्ण झाला. फाईल डाउनलोड करण्यासाठी 'save pdf' म्हणा.",
+    "openingEmergency": "तातडीची मदत उघडत आहोत.",
+    "goingBack": "मागे जात आहोत.",
+    "openingScanner": "स्कॅनर उघडत आहोत.",
+    "capturingDoc": "दस्तऐवज कॅप्चर करत आहोत.",
+    "restartingScanner": "स्कॅनर पुन्हा सुरू करत आहोत.",
+    "findingSchemes": "तुमच्यासाठी योजना शोधत आहोत.",
+    "selectedScheme": "{{name}} निवडले.",
+    "appGenerated": "अर्ज तयार झाला आहे.",
+    "pdfDownloaded": "अर्ज पीडीएफ डाउनलोड झाली."
+  }
+}

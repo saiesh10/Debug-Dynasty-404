@@ -1,0 +1,47 @@
+{
+  "eyebrow": "Gesture navigation",
+  "title": "Use the five gestures, or open the guide",
+  "lead": "Hold a pose steadily. Peace sign opens the document scanner. Open the “How gestures work” guide anytime if you need a reminder.",
+  "buttonsOnlyNotice": "Button navigation is on. Use Open scanner below, or try the camera again.",
+  "openScanner": "Open scanner",
+  "tryCameraAgain": "Try camera again",
+  "switchToButtons": "Switch to button navigation",
+  "guide": {
+    "eyebrow": "How gestures work",
+    "title": "Five gestures you can use",
+    "lead": "Hold a pose steadily in front of the camera. Ambiguous movement is ignored on purpose.",
+    "gotIt": "Got it"
+  },
+  "poses": {
+    "open_palm": {
+      "name": "Open Palm",
+      "meaning": "Namaste / Home / Help",
+      "action": "Navigate to Home screen",
+      "feedback": "Open palm recognized — going home"
+    },
+    "thumbs_up": {
+      "name": "Thumbs Up",
+      "meaning": "Confirm / Yes",
+      "action": "Trigger the current screen’s primary confirm/next action",
+      "feedback": "Thumbs up recognized — confirming"
+    },
+    "thumbs_down": {
+      "name": "Thumbs Down",
+      "meaning": "Reject / No / Back",
+      "action": "Trigger the current screen’s back/cancel action",
+      "feedback": "Thumbs down recognized — going back"
+    },
+    "peace_sign": {
+      "name": "Peace Sign (V)",
+      "meaning": "Explore Schemes",
+      "action": "Navigate into the scanner flow",
+      "feedback": "Peace sign recognized — opening scanner"
+    },
+    "closed_fist": {
+      "name": "Closed Fist",
+      "meaning": "Emergency SOS / Help Desk",
+      "action": "Navigate to Emergency screen from anywhere",
+      "feedback": "Closed fist recognized — opening emergency help"
+    }
+  }
+}

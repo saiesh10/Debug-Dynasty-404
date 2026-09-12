@@ -1,0 +1,64 @@
+{
+  "eyebrow": "Voice Navigation Assistant",
+  "title": "Tell us what you need",
+  "lead": "Voice recognition is active and listening automatically. Speak your command to navigate without touching any buttons.",
+  "status": {
+    "listeningSpeech": "Listening to speech…",
+    "listeningMic": "Microphone is listening…",
+    "connecting": "Connecting microphone…",
+    "paused": "Microphone paused"
+  },
+  "hearing": "Hearing: “{{transcript}}”",
+  "speakPrompt": "Speak into your microphone — say “explore schemes” or “find schemes”",
+  "chips": {
+    "explore": "🗣️ “explore schemes” → Opens scanner",
+    "find": "🗣️ “find schemes” → Check eligible support",
+    "emergency": "🗣️ “emergency” → Emergency help",
+    "home": "🗣️ “go home” → Main menu"
+  },
+  "micRetry": "Retry Microphone Access",
+  "openScanner": "Open scanner →",
+  "muteMic": "Mute microphone",
+  "unmuteMic": "Unmute microphone",
+  "muteShort": "Mute Mic",
+  "unmuteShort": "Unmute",
+  "exitVoice": "Exit Voice",
+  "talkToNavigate": "Talk to Navigate",
+  "voiceNavigatorListening": "Voice Navigator: Listening…",
+  "voiceNavigatorConnecting": "Connecting Mic…",
+  "voiceNavigatorPaused": "Voice Navigator: Paused",
+  "fallback": {
+    "unavailable": "Voice input is unavailable. Type a command instead.",
+    "unclear": "Speech was unclear. Type a command instead.",
+    "general": "You can also type a command",
+    "placeholder": "Type a command, for example: explore schemes"
+  },
+  "hints": {
+    "home": "Say “explore schemes”, “voice mode”, or “emergency”",
+    "voice": "Say “explore schemes”, “emergency”, or “go home”",
+    "scanner": "Say “capture”, “upload”, “find scheme”, or “go home”",
+    "confirm": "Say “find scheme”, “rescan”, or “go home”",
+    "schemes": "Say “choose scheme 1”, “choose scheme 2”, or “go back”",
+    "application": "Say “save pdf”, “back to schemes”, or “go home”",
+    "submitted": "Say “save pdf”, “download pdf”, or “go home”",
+    "emergency": "Say “go home” or “go back”"
+  },
+  "spoken": {
+    "voiceReady": "Voice assistant ready. Say explore schemes to scan your document, or say find schemes.",
+    "scannerReady": "Document scanner ready. Position your document. Say find scheme when ready.",
+    "confirmDetails": "Check your details {{name}}. Say find scheme to see your welfare schemes, or rescan.",
+    "schemesFound": "{{count}} matching schemes found. Say choose scheme 1 for {{first}}, or choose scheme 2.",
+    "noSchemes": "No matching schemes found. Say rescan or go back.",
+    "appReview": "Application review for {{scheme}}. Say save pdf to generate your application.",
+    "appSubmitted": "Application completed. Say save pdf to download your file.",
+    "openingEmergency": "Opening emergency help.",
+    "goingBack": "Going back.",
+    "openingScanner": "Opening document scanner.",
+    "capturingDoc": "Capturing document.",
+    "restartingScanner": "Restarting document scanner.",
+    "findingSchemes": "Finding matching schemes for your confirmed details.",
+    "selectedScheme": "Selected {{name}}. Opening application review.",
+    "appGenerated": "Application generated. Ready to download.",
+    "pdfDownloaded": "Application PDF downloaded."
+  }
+}

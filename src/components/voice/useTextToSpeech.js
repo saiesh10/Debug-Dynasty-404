@@ -1,6 +1,9 @@
 import { useCallback, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { getSpeechLang } from '../../i18n/speechLangMap'
 
 export function useTextToSpeech() {
+  const { i18n } = useTranslation()
   const [isSpeaking, setIsSpeaking] = useState(false)
   const isSpeakingRef = useRef(false)
   const activeUtteranceRef = useRef(null)
@@ -24,7 +27,8 @@ export function useTextToSpeech() {
     stop()
 
     const utterance = new SpeechSynthesisUtterance(text)
-    utterance.lang = (typeof navigator !== 'undefined' && navigator.language) || 'en-US'
+    const currentLang = i18n.language ? i18n.language.split('-')[0] : 'en'
+    utterance.lang = getSpeechLang(currentLang)
     utterance.rate = 1.0
     activeUtteranceRef.current = utterance
 
@@ -51,7 +55,7 @@ export function useTextToSpeech() {
     } catch {
       finish()
     }
-  }, [stop])
+  }, [i18n.language, stop])
 
   return {
     speak,

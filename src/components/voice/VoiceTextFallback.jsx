@@ -1,11 +1,14 @@
+import { useTranslation } from 'react-i18next'
 import { parseVoiceIntent } from './parseVoiceIntent'
 
 function VoiceTextFallback({ onIntent, message }) {
+  const { t } = useTranslation('voice')
+
   return (
     <label className="voice-fallback">
-      {message || 'Type a command if the microphone is unavailable'}
+      {message || t('fallback.general', 'You can also type a command')}
       <input
-        placeholder="Type a command, for example: explore schemes"
+        placeholder={t('fallback.placeholder', 'Type a command, for example: explore schemes')}
         onKeyDown={(event) => {
           if (event.key !== 'Enter') return
           const intent = parseVoiceIntent(event.currentTarget.value)

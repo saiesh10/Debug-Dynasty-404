@@ -1,9 +1,11 @@
 import { lazy, Suspense } from 'react'
+import { useTranslation } from 'react-i18next'
 import { NavigationProvider, useNavigation } from './context/NavigationContext'
 import { CitizenProvider, useCitizen } from './context/CitizenContext'
 import { CameraProvider } from './context/CameraContext'
 import ScreenReaderAnnouncer from './components/common/ScreenReaderAnnouncer'
 import { OneKeyNavProvider } from './components/common/OneKeyNavProvider'
+import LanguageSwitcher from './components/common/LanguageSwitcher'
 import ModePicker from './components/mode-picker/ModePicker'
 import ConfirmDetailsScreen from './components/confirm/ConfirmDetailsScreen'
 import SchemesScreen from './components/schemes/SchemesScreen'
@@ -19,12 +21,13 @@ const GestureNavigator = lazy(() => import('./components/gesture/GestureNavigato
 const SubmittedScreen = lazy(() => import('./components/application/SubmittedScreen'))
 
 function Topbar() {
+  const { t } = useTranslation('common')
   const { goHome, navigateTo } = useNavigation()
   const { inGestureMode, setGuideOpen } = useGestureControl()
 
   return (
     <header className="topbar">
-      <button className="brand" type="button" onClick={goHome} aria-label="DivyangSetu home">
+      <button className="brand" type="button" onClick={goHome} aria-label={`${t('appName', 'DivyangSetu')} ${t('nav.home', 'Home')}`}>
         <span className="brand-mark" aria-hidden="true">
           <svg viewBox="0 0 48 48" role="presentation">
             <path className="brand-mark-arc" d="M8 28c4-10 10-15 16-15s12 5 16 15" />
@@ -36,18 +39,19 @@ function Topbar() {
         <span>Divyang<span>Setu</span></span>
       </button>
       <div className="topbar-actions">
+        <LanguageSwitcher />
         {inGestureMode && (
           <button
             className="emergency-button"
             type="button"
             onClick={() => setGuideOpen(true)}
-            aria-label="How gestures work"
+            aria-label={t('nav.howGesturesWork', 'How gestures work')}
           >
-            How gestures work
+            {t('nav.howGesturesWork', 'How gestures work')}
           </button>
         )}
         <button className="emergency-button" type="button" onClick={() => navigateTo('emergency')}>
-          Emergency help
+          {t('nav.emergencyHelp', 'Emergency help')}
         </button>
       </div>
     </header>
@@ -55,6 +59,7 @@ function Topbar() {
 }
 
 function AppContent() {
+  const { t } = useTranslation('common')
   const { currentScreen, announcement, navigateTo, goHome } = useNavigation()
   const { clearCitizenData } = useCitizen()
 
@@ -80,18 +85,22 @@ function AppContent() {
       <Topbar />
       <main className="app-main">
         <div className="status-line">
-          <span>Private by design · runs on your device</span>
-          {currentScreen !== 'home' && <button type="button" onClick={goHome}>Home</button>}
+          <span>{t('status.private', 'Private by design · runs on your device')}</span>
+          {currentScreen !== 'home' && (
+            <button type="button" onClick={goHome}>
+              {t('nav.home', 'Home')}
+            </button>
+          )}
         </div>
-        <Suspense fallback={<section className="workspace-panel"><p className="lead">Loading…</p></section>}>
+        <Suspense fallback={<section className="workspace-panel"><p className="lead">{t('nav.loading', 'Loading…')}</p></section>}>
           {screens[currentScreen] || <ModePicker />}
         </Suspense>
       </main>
       <footer>
-        <span>Designed for dignity, access, and clarity.</span>
+        <span>{t('footer.quote', 'Designed for dignity, access, and clarity.')}</span>
         <span className="footer-actions">
-          <button type="button" onClick={clearDataAndGoHome}>Clear my data</button>
-          <button type="button" onClick={() => navigateTo('emergency')}>Need help?</button>
+          <button type="button" onClick={clearDataAndGoHome}>{t('nav.clearData', 'Clear my data')}</button>
+          <button type="button" onClick={() => navigateTo('emergency')}>{t('nav.needHelp', 'Need help?')}</button>
         </span>
       </footer>
       <ScreenReaderAnnouncer message={announcement} />
@@ -101,19 +110,21 @@ function AppContent() {
 
 function App() {
   return (
-    <NavigationProvider>
-      <CitizenProvider>
-        <CameraProvider>
-          <OneKeyNavProvider>
-            <GestureSessionProvider>
-              <VoiceSessionProvider>
-                <AppContent />
-              </VoiceSessionProvider>
-            </GestureSessionProvider>
-          </OneKeyNavProvider>
-        </CameraProvider>
-      </CitizenProvider>
-    </NavigationProvider>
+    <Suspense fallback={<div className="loading-splash">Loading DivyangSetu…</div>}>
+      <NavigationProvider>
+        <CitizenProvider>
+          <CameraProvider>
+            <OneKeyNavProvider>
+              <GestureSessionProvider>
+                <VoiceSessionProvider>
+                  <AppContent />
+                </VoiceSessionProvider>
+              </GestureSessionProvider>
+            </OneKeyNavProvider>
+          </CameraProvider>
+        </CitizenProvider>
+      </NavigationProvider>
+    </Suspense>
   )
 }
 

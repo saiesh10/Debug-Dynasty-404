@@ -1,12 +1,22 @@
 import { useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useCitizen } from '../../context/CitizenContext'
 import { useNavigation } from '../../context/NavigationContext'
 import { usePrimaryAction } from '../common/OneKeyNavProvider'
 
+export function getLocalizedField(field, lang) {
+  if (!field) return ''
+  if (typeof field === 'string') return field
+  const langKey = lang ? lang.split('-')[0] : 'en'
+  return field[langKey] || field.en || Object.values(field)[0] || ''
+}
+
 function SchemesScreen() {
+  const { t, i18n } = useTranslation(['schemes', 'common'])
   const { matchedSchemes, setSelectedScheme } = useCitizen()
   const { navigateTo, entryMode } = useNavigation()
   const inVoiceMode = entryMode === 'voice'
+  const currentLang = i18n.language || 'en'
 
   const startFirst = useCallback(() => {
     if (!matchedSchemes[0]) return
@@ -23,33 +33,51 @@ function SchemesScreen() {
 
   return (
     <section className="workspace-panel wide-panel">
-      <span className="eyebrow">Step 3 of 3 · Matched support</span>
-      <h2>Support that may be right for you</h2>
+      <span className="eyebrow">{t('schemes:eyebrow', 'Step 3 of 3 · Matched support')}</span>
+      <h2>{t('schemes:title', 'Support that may be right for you')}</h2>
       <p className="lead">
-        Based on the details you confirmed, {matchedSchemes.length} schemes are ready to review.
-        {inVoiceMode && ' Speak “choose scheme 1” or “choose scheme 2” to select a scheme.'}
+        {t('schemes:lead', 'Based on the details you confirmed, {{count}} schemes are ready to review.', {
+          count: matchedSchemes.length,
+        })}
+        {inVoiceMode && t('schemes:voiceLead', ' Speak “choose scheme 1” or “choose scheme 2” to select a scheme.')}
       </p>
       {matchedSchemes.length === 0 ? (
-        <p className="lead">No schemes matched these details. You can rescan or edit the confirmed fields.</p>
+        <p className="lead">
+          {t('schemes:noneMatched', 'No schemes matched these details. You can rescan or edit the confirmed fields.')}
+        </p>
       ) : (
         <div className="scheme-list">
           {matchedSchemes.map((scheme, index) => {
             const schemeNumber = index + 1
+            const name = getLocalizedField(scheme.name, currentLang)
+            const officialName = getLocalizedField(scheme.officialName, currentLang)
+            const detail = getLocalizedField(scheme.detail, currentLang)
+
             return (
-              <article className="scheme-card" key={scheme.id || scheme.name}>
+              <article className="scheme-card" key={scheme.id || (typeof scheme.name === 'string' ? scheme.name : scheme.id)}>
                 <div>
                   <div className="scheme-header-row">
-                    <span className="scheme-tag">Scheme #{schemeNumber} · Official Govt Scheme</span>
+                    <span className="scheme-tag">
+                      {t('schemes:card.schemeTag', 'Scheme #{{number}} · Official Govt Scheme', {
+                        number: schemeNumber,
+                      })}
+                    </span>
                     {inVoiceMode && (
-                      <span className="voice-badge-pill">🗣️ Say “Choose scheme {schemeNumber}”</span>
+                      <span className="voice-badge-pill">
+                        {t('schemes:card.voicePill', '🗣️ Say “Choose scheme {{number}}”', {
+                          number: schemeNumber,
+                        })}
+                      </span>
                     )}
                     {scheme.ministry && <small className="scheme-ministry">{scheme.ministry}</small>}
                   </div>
-                  <h3>{scheme.name}</h3>
-                  {scheme.officialName && scheme.officialName !== scheme.name && (
-                    <p className="scheme-official-name"><em>{scheme.officialName}</em></p>
+                  <h3>{name}</h3>
+                  {officialName && officialName !== name && (
+                    <p className="scheme-official-name">
+                      <em>{officialName}</em>
+                    </p>
                   )}
-                  <p>{scheme.detail}</p>
+                  <p>{detail}</p>
                 </div>
                 <div className="scheme-meta">
                   <strong className="scheme-amount">{scheme.amount}</strong>
@@ -61,7 +89,7 @@ function SchemesScreen() {
                       rel="noopener noreferrer"
                       title="Open official government portal"
                     >
-                      Official Portal ↗
+                      {t('schemes:card.officialPortal', 'Official Portal ↗')}
                     </a>
                   )}
                 </div>
@@ -70,7 +98,10 @@ function SchemesScreen() {
                   type="button"
                   onClick={() => handleSelectScheme(scheme)}
                 >
-                  Apply for Scheme #{schemeNumber} ({scheme.name}) <span aria-hidden="true">→</span>
+                  {t('schemes:card.applyBtn', 'Apply for Scheme #{{number}} ({{name}}) →', {
+                    number: schemeNumber,
+                    name,
+                  })}
                 </button>
               </article>
             )

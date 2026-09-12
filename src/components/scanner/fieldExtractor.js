@@ -96,6 +96,18 @@ export function isNameCandidate(value) {
   return true
 }
 
+const AADHAAR_NAME_NOISE = new Set([
+  'my', 'your', 'aadhar', 'aadhaar', 'number', 'no', 'identity', 'card',
+  'enrolment', 'enrollment', 'government', 'india', 'unique', 'identification',
+  'authority', 'helpdesk', 'male', 'female', 'dob', 'date', 'birth',
+])
+
+function isAadhaarNameCandidate(value) {
+  if (!isNameCandidate(value)) return false
+  const words = cleanValue(value).toLowerCase().split(/\s+/).filter(Boolean)
+  return words.length >= 2 && !words.some((word) => AADHAAR_NAME_NOISE.has(word))
+}
+
 export function validDate(value) {
   if (!value) return false
   const trimmed = String(value).trim()
@@ -754,14 +766,14 @@ function extractAadhaarFields(text, lines) {
     const toMatch = line.match(/^to\s*[:#=-]?\s*(.*)$/i)
     if (toMatch) {
       const inline = cleanValue(toMatch[1])
-      if (inline && isNameCandidate(inline) && !isRelativeLine(inline)) {
+      if (inline && isAadhaarNameCandidate(inline) && !isRelativeLine(inline)) {
         name = sanitizeName(inline).slice(0, FIELD_LIMITS.name)
         nameReason = `Found addressee on To: line: "${name}"`
         nameScore = 96
         break
       } else if (!inline && i + 1 < lines.length) {
         const nextLine = cleanValue(lines[i + 1])
-        if (!looksLikeFieldLabel(nextLine) && isNameCandidate(nextLine) && !isRelativeLine(nextLine)) {
+        if (!looksLikeFieldLabel(nextLine) && isAadhaarNameCandidate(nextLine) && !isRelativeLine(nextLine)) {
           name = sanitizeName(nextLine).slice(0, FIELD_LIMITS.name)
           nameReason = `Found addressee after To: header: "${name}"`
           nameScore = 94
@@ -797,7 +809,7 @@ function extractAadhaarFields(text, lines) {
       if (isRelativeLine(line) || looksLikeFieldLabel(line)) continue
       if (i > 0 && isRelativeLine(lines[i - 1])) continue
       if (/^\d{4}\s+\d{4}\s+\d{4}$/.test(line)) continue
-      if (isNameCandidate(line)) {
+      if (isAadhaarNameCandidate(line)) {
         name = sanitizeName(line).slice(0, FIELD_LIMITS.name)
         nameReason = `Top-of-card candidate line on Aadhaar: "${name}"`
         nameScore = 78

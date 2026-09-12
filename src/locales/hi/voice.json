@@ -1,0 +1,64 @@
+{
+  "eyebrow": "वॉयस नेविगेशन सहायक",
+  "title": "बताएं कि आपको क्या चाहिए",
+  "lead": "वॉयस पहचान सक्रिय है और सुन रही है। बिना किसी बटन को छुए नेविगेट करने के लिए बोलें।",
+  "status": {
+    "listeningSpeech": "आवाज़ सुनी जा रही है…",
+    "listeningMic": "माइक्रोफ़ोन सुन रहा है…",
+    "connecting": "माइक्रोफ़ोन कनेक्ट हो रहा है…",
+    "paused": "माइक्रोफ़ोन रुका हुआ है"
+  },
+  "hearing": "सुना: “{{transcript}}”",
+  "speakPrompt": "माइक्रोफ़ोन में बोलें — कहें “explore schemes” या “योजनाएं खोजें”",
+  "chips": {
+    "explore": "🗣️ “explore schemes” → स्कैनर खोलें",
+    "find": "🗣️ “find schemes” → योजनाएं देखें",
+    "emergency": "🗣️ “emergency” → आपातकालीन सहायता",
+    "home": "🗣️ “go home” → मुख्य मेनू"
+  },
+  "micRetry": "माइक्रोफ़ोन पुनः प्रयास करें",
+  "openScanner": "स्कैनर खोलें →",
+  "muteMic": "माइक्रोफ़ोन बंद करें",
+  "unmuteMic": "माइक्रोफ़ोन चालू करें",
+  "muteShort": "माइक बंद",
+  "unmuteShort": "माइक चालू",
+  "exitVoice": "वॉयस से बाहर निकलें",
+  "talkToNavigate": "बोलकर नेविगेट करें",
+  "voiceNavigatorListening": "वॉयस नेविगेटर: सुन रहा है…",
+  "voiceNavigatorConnecting": "माइक कनेक्ट हो रहा है…",
+  "voiceNavigatorPaused": "वॉयस नेविगेटर: रुका हुआ",
+  "fallback": {
+    "unavailable": "वॉयस इनपुट उपलब्ध नहीं है। इसके बजाय लिखकर कमांड दें।",
+    "unclear": "आवाज़ स्पष्ट नहीं थी। लिखकर कमांड दें।",
+    "general": "आप लिखकर भी कमांड दे सकते हैं",
+    "placeholder": "कमांड लिखें, उदाहरण के लिए: explore schemes"
+  },
+  "hints": {
+    "home": "कहें “explore schemes”, “voice mode”, या “emergency”",
+    "voice": "कहें “explore schemes”, “emergency”, या “go home”",
+    "scanner": "कहें “capture”, “upload”, “find scheme”, या “go home”",
+    "confirm": "कहें “find scheme”, “rescan”, या “go home”",
+    "schemes": "कहें “choose scheme 1”, “choose scheme 2”, या “go back”",
+    "application": "कहें “save pdf”, “back to schemes”, या “go home”",
+    "submitted": "कहें “save pdf”, “download pdf”, या “go home”",
+    "emergency": "कहें “go home” या “go back”"
+  },
+  "spoken": {
+    "voiceReady": "वॉयस सहायक तैयार है। अपना दस्तावेज़ स्कैन करने के लिए 'explore schemes' या 'find schemes' कहें।",
+    "scannerReady": "दस्तावेज़ स्कैनर तैयार है। दस्तावेज़ को कैमरे के सामने रखें। तैयार होने पर 'find scheme' कहें।",
+    "confirmDetails": "अपने विवरण की जांच करें {{name}}। अपनी कल्याणकारी योजनाएं देखने के लिए 'find scheme' कहें, या 'rescan' कहें।",
+    "schemesFound": "{{count}} योजनाएं मिलीं। पहली योजना के लिए 'choose scheme 1' कहें।",
+    "noSchemes": "कोई योजना नहीं मिली। 'rescan' या 'go back' कहें।",
+    "appReview": "{{scheme}} के लिए आवेदन समीक्षा। आवेदन तैयार करने के लिए 'save pdf' कहें।",
+    "appSubmitted": "आवेदन पूरा हुआ। अपनी फ़ाइल डाउनलोड करने के लिए 'save pdf' कहें।",
+    "openingEmergency": "आपातकालीन सहायता खोली जा रही है।",
+    "goingBack": "वापस जा रहे हैं।",
+    "openingScanner": "दस्तावेज़ स्कैनर खोला जा रहा है।",
+    "capturingDoc": "दस्तावेज़ कैप्चर किया जा रहा है।",
+    "restartingScanner": "दस्तावेज़ स्कैनर पुनः प्रारंभ किया जा रहा है।",
+    "findingSchemes": "आपके विवरण के अनुसार योजनाएं खोजी जा रही हैं।",
+    "selectedScheme": "{{name}} का चयन किया गया।",
+    "appGenerated": "आवेदन तैयार है।",
+    "pdfDownloaded": "आवेदन पीडीएफ डाउनलोड हो गया है।"
+  }
+}

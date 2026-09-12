@@ -1,0 +1,20 @@
+{
+  "review": {
+    "eyebrow": "Application review",
+    "title": "Ready to create your application?",
+    "lead": "We will generate a completed PDF for your records. Nothing is submitted to a government portal in this demo.",
+    "voiceLead": " Speak “save pdf” or “create pdf” to continue.",
+    "defaultSupport": "Disability support",
+    "createBtn": "Create application PDF",
+    "backBtn": "Back to schemes"
+  },
+  "submitted": {
+    "eyebrow": "Application ready",
+    "title": "Your completed application is ready",
+    "lead": "This demo creates a downloadable application. A production version would submit it directly to the scheme portal.",
+    "voiceLead": " Speak “save pdf” or “download pdf” to save.",
+    "downloadBtn": "Download application PDF",
+    "downloadStarted": "PDF download started",
+    "backBtn": "Back to schemes"
+  }
+}

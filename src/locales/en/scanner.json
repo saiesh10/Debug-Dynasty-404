@@ -1,0 +1,80 @@
+{
+  "eyebrow": "Step 1 of 3 · Document scan",
+  "title": "Scan an identity document",
+  "lead": "Supports PAN Card, Voter ID (EPIC), Driving Licence, and Aadhaar Card. Takes time to scan and verify proper details.",
+  "status": {
+    "initial": "Position your identity document inside the frame and hold steady.",
+    "reading": "Reading document carefully… Hold card steady in good light.",
+    "noText": "No clear document text detected yet. Keep card flat inside frame with good lighting.",
+    "verified": "✅ {{docName}} successfully scanned & verified! All required details extracted.",
+    "reviewing": "Reviewing captured details…",
+    "holdSteadyMissing": "Detected {{docName}}. Hold steady to scan: {{missing}}…",
+    "holdSteadyRefine": "Scanning {{docName}}… Hold steady to refine details.",
+    "cameraStarting": "Camera starting… Position document inside the frame.",
+    "buttonNavOn": "Button navigation is on. Enter your details manually to continue."
+  },
+  "verifiedPanel": {
+    "scanComplete": "✅ Scan Complete & Verified",
+    "advancingIn": "Advancing in {{count}}s",
+    "pause": "Pause",
+    "fullName": "Full Name:",
+    "idNumber": "ID Number:",
+    "dob": "Date of Birth / Age:",
+    "address": "Address:",
+    "panNoAddress": "Not on standard PAN card (Not required)",
+    "manualFillNotice": "Can be filled manually on next screen",
+    "proceedBtn": "Proceed with verified details →",
+    "editBtn": "Edit details",
+    "rescanBtn": "Rescan document",
+    "voiceHint": "🗣️ Talk to navigate: Say “Find schemes” or “Proceed” to see your matching welfare schemes."
+  },
+  "chips": {
+    "progress": "Scan Progress: {{score}}% · Pass {{pass}}",
+    "nameFound": "✓ Name: {{value}}",
+    "nameScanning": "○ Scanning for Name…",
+    "idFound": "✓ ID: {{value}}",
+    "idScanning": "○ Scanning for ID Number…",
+    "dobFound": "✓ DOB: {{value}}",
+    "dobScanning": "○ Scanning for DOB…",
+    "addressFound": "✓ Address Found",
+    "addressScanning": "○ Address (Can fill manually)"
+  },
+  "buttons": {
+    "capture": "Capture document",
+    "reading": "Reading…",
+    "upload": "Upload photo",
+    "reviewCaptured": "Review captured details",
+    "enterManual": "Enter details manually",
+    "back": "Back"
+  },
+  "cameraUnavailable": "Camera unavailable",
+  "buttonNavPrompt": "Use the buttons below to continue without camera access.",
+  "correction": {
+    "lead": "Please verify the extracted information. Edit any field below to correct it, then confirm to continue.",
+    "panBanner": "ℹ️ Standard PAN cards do not display an address. Address is marked as not applicable.",
+    "confidence": "Confidence {{conf}}%",
+    "notOnPan": "Not present on PAN Card",
+    "notApplicablePan": "Not applicable for PAN card",
+    "confirm": "Confirm details",
+    "retake": "Retake"
+  },
+  "confirmScreen": {
+    "eyebrow": "Step 2 of 3 · Confirm details",
+    "title": "Check the extracted details",
+    "lead": "Please correct anything that does not look right before continuing.",
+    "voiceLead": " Speak “find schemes” to continue or “rescan” to retake.",
+    "recognizedDoc": "Recognized Document",
+    "fullName": "Full Name",
+    "idNumber": "ID number",
+    "dob": "Date of Birth",
+    "approxAgeHint": "Approximate age from Voter ID",
+    "address": "Address",
+    "panAddressHint": "Not printed on standard PAN cards (not required)",
+    "findSchemes": "Find my schemes",
+    "rescan": "Rescan"
+  },
+  "cameraErrors": {
+    "tryAgain": "Try camera again",
+    "switchButtons": "Switch to button navigation"
+  }
+}

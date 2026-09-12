@@ -1,10 +1,12 @@
 import { useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigation } from '../../context/NavigationContext'
 import { usePrimaryAction } from '../common/OneKeyNavProvider'
 import VoiceTextFallback from './VoiceTextFallback'
 import { useVoiceControl } from './VoiceContext'
 
 function VoiceAssistant() {
+  const { t } = useTranslation(['voice', 'common'])
   const { navigateTo, goHome } = useNavigation()
   const {
     isListening,
@@ -20,20 +22,27 @@ function VoiceAssistant() {
   } = useVoiceControl()
 
   const openScanner = useCallback(() => {
-    navigateTo('scanner', 'voice', 'Document scanner opened')
-  }, [navigateTo])
+    navigateTo('scanner', 'voice', t('spoken.openingScanner', 'Document scanner opened'))
+  }, [navigateTo, t])
 
   usePrimaryAction(openScanner)
 
-  const micDenied = Boolean(!hasPermission || error?.toLowerCase().includes('denied') || error?.toLowerCase().includes('not-allowed'))
+  const micDenied = Boolean(
+    !hasPermission ||
+    error?.toLowerCase().includes('denied') ||
+    error?.toLowerCase().includes('not-allowed')
+  )
   const showFallback = !isSupported || micDenied
 
   return (
     <section className="workspace-panel voice-welcome-panel">
-      <span className="eyebrow">Voice Navigation Assistant</span>
-      <h2>Tell us what you need</h2>
+      <span className="eyebrow">{t('voice:eyebrow', 'Voice Navigation Assistant')}</span>
+      <h2>{t('voice:title', 'Tell us what you need')}</h2>
       <p className="lead">
-        Voice recognition is active and listening automatically. Speak your command to navigate without touching any buttons.
+        {t(
+          'voice:lead',
+          'Voice recognition is active and listening automatically. Speak your command to navigate without touching any buttons.',
+        )}
       </p>
 
       <div className={`voice-active-card ${speechDetected ? 'speech-detected' : ''}`}>
@@ -45,26 +54,33 @@ function VoiceAssistant() {
           <div>
             <h3>
               {voiceEnabled
-                ? (isListening
-                    ? (speechDetected ? 'Listening to speech…' : 'Microphone is listening…')
-                    : 'Connecting microphone…')
-                : 'Microphone paused'}
+                ? isListening
+                  ? speechDetected
+                    ? t('voice:status.listeningSpeech', 'Listening to speech…')
+                    : t('voice:status.listeningMic', 'Microphone is listening…')
+                  : t('voice:status.connecting', 'Connecting microphone…')
+                : t('voice:status.paused', 'Microphone paused')}
             </h3>
             <p className="voice-card-sub">
               {transcript ? (
-                <strong className="voice-spoken-text">Hearing: “{transcript}”</strong>
+                <strong className="voice-spoken-text">
+                  {t('voice:hearing', 'Hearing: “{{transcript}}”', { transcript })}
+                </strong>
               ) : (
-                'Speak into your microphone — say “explore schemes” or “find schemes”'
+                t(
+                  'voice:speakPrompt',
+                  'Speak into your microphone — say “explore schemes” or “find schemes”',
+                )
               )}
             </p>
           </div>
         </div>
 
         <div className="voice-command-chips">
-          <span className="voice-chip">🗣️ “explore schemes” → Opens scanner</span>
-          <span className="voice-chip">🗣️ “find schemes” → Check eligible support</span>
-          <span className="voice-chip">🗣️ “emergency” → Emergency help</span>
-          <span className="voice-chip">🗣️ “go home” → Main menu</span>
+          <span className="voice-chip">{t('voice:chips.explore', '🗣️ “explore schemes” → Opens scanner')}</span>
+          <span className="voice-chip">{t('voice:chips.find', '🗣️ “find schemes” → Check eligible support')}</span>
+          <span className="voice-chip">{t('voice:chips.emergency', '🗣️ “emergency” → Emergency help')}</span>
+          <span className="voice-chip">{t('voice:chips.home', '🗣️ “go home” → Main menu')}</span>
         </div>
       </div>
 
@@ -78,19 +94,15 @@ function VoiceAssistant() {
               style={{ marginTop: '0.5rem', padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}
               onClick={() => start()}
             >
-              Retry Microphone Access
+              {t('voice:micRetry', 'Retry Microphone Access')}
             </button>
           )}
         </div>
       )}
 
       <div className="action-row">
-        <button
-          className="primary-button"
-          type="button"
-          onClick={openScanner}
-        >
-          Open scanner →
+        <button className="primary-button" type="button" onClick={openScanner}>
+          {t('voice:openScanner', 'Open scanner →')}
         </button>
         <button
           className="secondary-button"
@@ -98,22 +110,26 @@ function VoiceAssistant() {
           onClick={toggleMic}
           disabled={!isSupported || micDenied}
         >
-          {voiceEnabled ? 'Mute microphone' : 'Unmute microphone'}
+          {voiceEnabled
+            ? t('voice:muteMic', 'Mute microphone')
+            : t('voice:unmuteMic', 'Unmute microphone')}
         </button>
         <button className="secondary-button" type="button" onClick={goHome}>
-          Change mode
+          {t('common:nav.changeMode', 'Change mode')}
         </button>
       </div>
 
       <VoiceTextFallback
-        message={showFallback
-          ? (micDenied || !isSupported
-            ? 'Voice input is unavailable. Type a command instead.'
-            : 'Speech was unclear. Type a command instead.')
-          : 'You can also type a command'}
+        message={
+          showFallback
+            ? micDenied || !isSupported
+              ? t('voice:fallback.unavailable', 'Voice input is unavailable. Type a command instead.')
+              : t('voice:fallback.unclear', 'Speech was unclear. Type a command instead.')
+            : t('voice:fallback.general', 'You can also type a command')
+        }
         onIntent={(intent, typed) => {
           if (intent === 'explore') openScanner()
-          else if (intent === 'emergency') navigateTo('emergency', 'voice', 'Emergency help')
+          else if (intent === 'emergency') navigateTo('emergency', 'voice', t('spoken.openingEmergency', 'Emergency help'))
           else if (intent === 'home') goHome()
           else executeVoiceCommand({ intent, raw: typed })
         }}

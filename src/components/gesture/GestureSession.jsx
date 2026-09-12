@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigation } from '../../context/NavigationContext'
 import { useOneKeyNav } from '../common/OneKeyNavProvider'
 import GestureCamera from './GestureCamera'
@@ -14,6 +15,7 @@ function guideWasSeen() {
 }
 
 export function GestureSessionProvider({ children }) {
+  const { t } = useTranslation('gesture')
   const { entryMode, currentScreen, navigateTo, goHome, setAnnouncement } = useNavigation()
   const { runPrimaryAction, runBackAction } = useOneKeyNav()
   const lastActionAt = useRef(0)
@@ -44,10 +46,11 @@ export function GestureSessionProvider({ children }) {
   }, [])
 
   const announce = useCallback((gestureId) => {
-    const text = gestureById(gestureId)?.feedback || 'Gesture recognized'
+    const rawFallback = gestureById(gestureId)?.feedback || 'Gesture recognized'
+    const text = t(`poses.${gestureId}.feedback`, rawFallback)
     setFeedback(text)
     setAnnouncement(text)
-  }, [setAnnouncement])
+  }, [setAnnouncement, t])
 
   const applyGesture = useCallback((gesture) => {
     if (!inGestureMode || guideOpen || buttonsOnly) return
@@ -79,14 +82,16 @@ export function GestureSessionProvider({ children }) {
     }
     if (gesture === 'peace_sign') {
       announce(gesture)
-      navigateTo('scanner', 'gesture', gestureById(gesture).feedback)
+      const rawFeedback = gestureById(gesture)?.feedback || 'Opening scanner'
+      navigateTo('scanner', 'gesture', t(`poses.${gesture}.feedback`, rawFeedback))
       return
     }
     if (gesture === 'closed_fist') {
       announce(gesture)
-      navigateTo('emergency', 'gesture', gestureById(gesture).feedback)
+      const rawFeedback = gestureById(gesture)?.feedback || 'Opening emergency help'
+      navigateTo('emergency', 'gesture', t(`poses.${gesture}.feedback`, rawFeedback))
     }
-  }, [announce, buttonsOnly, goHome, guideOpen, inGestureMode, navigateTo, runBackAction, runPrimaryAction])
+  }, [announce, buttonsOnly, goHome, guideOpen, inGestureMode, navigateTo, runBackAction, runPrimaryAction, t])
 
   const value = useMemo(
     () => ({

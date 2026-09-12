@@ -1,0 +1,64 @@
+{
+  "eyebrow": "ಧ್ವನಿ ನ್ಯಾವಿಗೇಷನ್ ಸಹಾಯಕ",
+  "title": "ನಿಮಗೆ ಏನು ಬೇಕು ಎಂದು ತಿಳಿಸಿ",
+  "lead": "ಧ್ವನಿ ಗುರುತಿಸುವಿಕೆ ಸಕ್ರಿಯವಾಗಿದೆ ಮತ್ತು ಆಲಿಸುತ್ತಿದೆ. ಬಟನ್‌ಗಳನ್ನು ಮುಟ್ಟದೆ ನ್ಯಾವಿಗೇಟ್ ಮಾಡಲು ಮಾತನಾಡಿ.",
+  "status": {
+    "listeningSpeech": "ಧ್ವನಿಯನ್ನು ಆಲಿಸುತ್ತಿದೆ…",
+    "listeningMic": "ಮೈಕ್ರೊಫೋನ್ ಆಲಿಸುತ್ತಿದೆ…",
+    "connecting": "ಮೈಕ್ರೊಫೋನ್ ಸಂಪರ್ಕಗೊಳ್ಳುತ್ತಿದೆ…",
+    "paused": "ಮೈಕ್ರೊಫೋನ್ ವಿರಾಮಗೊಳಿಸಲಾಗಿದೆ"
+  },
+  "hearing": "ಕೇಳಿದ್ದು: “{{transcript}}”",
+  "speakPrompt": "ಮೈಕ್ರೊಫೋನ್‌ನಲ್ಲಿ ಮಾತನಾಡಿ — “explore schemes” ಅಥವಾ “ಯೋಜನೆಗಳನ್ನು ಹುಡುಕಿ” ಎಂದು ಹೇಳಿ",
+  "chips": {
+    "explore": "🗣️ “explore schemes” → ಸ್ಕ್ಯಾನರ್ ತೆರೆಯಿರಿ",
+    "find": "🗣️ “find schemes” → ಯೋಜನೆಗಳನ್ನು ಪರಿಶೀಲಿಸಿ",
+    "emergency": "🗣️ “emergency” → ತುರ್ತು ಸಹಾಯ",
+    "home": "🗣️ “go home” → ಮುಖ್ಯ ಮೆನು"
+  },
+  "micRetry": "ಮೈಕ್ರೊಫೋನ್ ಮರುಪ್ರಯತ್ನಿಸಿ",
+  "openScanner": "ಸ್ಕ್ಯಾನರ್ ತೆರೆಯಿರಿ →",
+  "muteMic": "ಮೈಕ್ ಆಫ್ ಮಾಡಿ",
+  "unmuteMic": "ಮೈಕ್ ಆನ್ ಮಾಡಿ",
+  "muteShort": "ಮೈಕ್ ಮ್ಯೂಟ್",
+  "unmuteShort": "ಅನ್‌ಮ್ಯೂಟ್",
+  "exitVoice": "ಧ್ವನಿ ಮೋಡ್ ನಿರ್ಗಮಿಸಿ",
+  "talkToNavigate": "ಮಾತನಾಡಿ ನ್ಯಾವಿಗೇಟ್ ಮಾಡಿ",
+  "voiceNavigatorListening": "ಧ್ವನಿ ನ್ಯಾವಿಗೇಟರ್: ಆಲಿಸುತ್ತಿದೆ…",
+  "voiceNavigatorConnecting": "ಮೈಕ್ ಸಂಪರ್ಕಗೊಳ್ಳುತ್ತಿದೆ…",
+  "voiceNavigatorPaused": "ಧ್ವನಿ ನ್ಯಾವಿಗೇಟರ್: ವಿರಾಮಗೊಳಿಸಲಾಗಿದೆ",
+  "fallback": {
+    "unavailable": "ಧ್ವನಿ ಇನ್‌ಪುಟ್ ಲಭ್ಯವಿಲ್ಲ. ಬದಲಿಗೆ ಟೈಪ್ ಮಾಡಿ.",
+    "unclear": "ಧ್ವನಿ ಸ್ಪಷ್ಟವಾಗಿರಲಿಲ್ಲ. ಬದಲಿಗೆ ಟೈಪ್ ಮಾಡಿ.",
+    "general": "ನೀವು ಟೈಪ್ ಮಾಡುವ ಮೂಲಕವೂ ಆಜ್ಞೆ ನೀಡಬಹುದು",
+    "placeholder": "ಆಜ್ಞೆಯನ್ನು ಟೈಪ್ ಮಾಡಿ, ಉದಾ: explore schemes"
+  },
+  "hints": {
+    "home": "“explore schemes”, “voice mode”, ಅಥವಾ “emergency” ಎಂದು ಹೇಳಿ",
+    "voice": "“explore schemes”, “emergency”, ಅಥವಾ “go home” ಎಂದು ಹೇಳಿ",
+    "scanner": "“capture”, “upload”, “find scheme”, ಅಥವಾ “go home” ಎಂದು ಹೇಳಿ",
+    "confirm": "“find scheme”, “rescan”, ಅಥವಾ “go home” ಎಂದು ಹೇಳಿ",
+    "schemes": "“choose scheme 1”, “choose scheme 2”, ಅಥವಾ “go back” ಎಂದು ಹೇಳಿ",
+    "application": "“save pdf”, “back to schemes”, ಅಥವಾ “go home” ಎಂದು ಹೇಳಿ",
+    "submitted": "“save pdf”, “download pdf”, ಅಥವಾ “go home” ಎಂದು ಹೇಳಿ",
+    "emergency": "“go home” ಅಥವಾ “go back” ಎಂದು ಹೇಳಿ"
+  },
+  "spoken": {
+    "voiceReady": "ಧ್ವನಿ ಸಹಾಯಕ ಸಿದ್ಧವಾಗಿದೆ. ಸ್ಕ್ಯಾನ್ ಮಾಡಲು 'explore schemes' ಅಥವಾ 'find schemes' ಎಂದು ಹೇಳಿ.",
+    "scannerReady": "ದಾಖಲೆ ಸ್ಕ್ಯಾನರ್ ಸಿದ್ಧವಾಗಿದೆ. ಕಾರ್ಡ್ ಹಿಡಿದು 'find scheme' ಎಂದು ಹೇಳಿ.",
+    "confirmDetails": "ವಿವರಗಳನ್ನು ಪರಿಶೀಲಿಸಿ {{name}}. ಯೋಜನೆಗಳನ್ನು ನೋಡಲು 'find scheme' ಎಂದು ಹೇಳಿ.",
+    "schemesFound": "{{count}} ಯೋಜನೆಗಳು ಕಂಡುಬಂದಿವೆ. ಮೊದಲ ಯೋಜನೆಗೆ 'choose scheme 1' ಎಂದು ಹೇಳಿ.",
+    "noSchemes": "ಯಾವ ಯೋಜನೆಗಳೂ ಹೊಂದಾಣಿಕೆಯಾಗಲಿಲ್ಲ. 'rescan' ಅಥವಾ 'go back' ಎಂದು ಹೇಳಿ.",
+    "appReview": "{{scheme}} ಯೋಜನೆಗಾಗಿ ಅರ್ಜಿ ಪರಿಶೀಲನೆ. 'save pdf' ಎಂದು ಹೇಳಿ.",
+    "appSubmitted": "ಅರ್ಜಿ ಪೂರ್ಣಗೊಂಡಿದೆ. ಫೈಲ್ ಡೌನ್‌ಲೋಡ್ ಮಾಡಲು 'save pdf' ಎಂದು ಹೇಳಿ.",
+    "openingEmergency": "ತುರ್ತು ಸಹಾಯ ತೆರೆಯಲಾಗುತ್ತಿದೆ.",
+    "goingBack": "ಹಿಂದಕ್ಕೆ ಹೋಗುತ್ತಿದ್ದೇವೆ.",
+    "openingScanner": "ಸ್ಕ್ಯಾನರ್ ತೆರೆಯಲಾಗುತ್ತಿದೆ.",
+    "capturingDoc": "ದಾಖಲೆಯನ್ನು ಸೆರೆಹಿಡಿಯಲಾಗುತ್ತಿದೆ.",
+    "restartingScanner": "ಸ್ಕ್ಯಾನರ್ ಮರುಪ್ರಾರಂಭಿಸಲಾಗುತ್ತಿದೆ.",
+    "findingSchemes": "ಯೋಜನೆಗಳನ್ನು ಹುಡುಕಲಾಗುತ್ತಿದೆ.",
+    "selectedScheme": "{{name}} ಆಯ್ಕೆ ಮಾಡಲಾಗಿದೆ.",
+    "appGenerated": "ಅರ್ಜಿ ಸಿದ್ಧವಾಗಿದೆ.",
+    "pdfDownloaded": "ಅರ್ಜಿ ಪಿಡಿಎಫ್ ಡೌನ್‌ಲೋಡ್ ಆಗಿದೆ."
+  }
+}

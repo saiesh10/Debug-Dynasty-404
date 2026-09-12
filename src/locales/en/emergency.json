@@ -1,0 +1,19 @@
+{
+  "eyebrow": "Immediate help",
+  "title": "Support is available",
+  "lead": "For urgent disability rehabilitation & mental health support, contact the 24×7 national toll-free helpline.",
+  "spoken": "Support is available. For urgent disability rehabilitation support, call the Kiran national helpline at 1 8 0 0 5 9 9 0 0 1 9 or ALIMCO at 1 8 0 0 1 8 0 5 1 2 9, or dial 1 1 2 for emergency.",
+  "kiranTag": "24×7 National Toll-Free (DEPwD)",
+  "kiranDesc": "National Mental Health & Disability Rehabilitation Helpline (Govt of India)",
+  "contacts": {
+    "alimco": "ALIMCO / ADIP Assistive Devices Toll-Free",
+    "emergency112": "National Emergency (Ambulance, Police, Fire)",
+    "depwd": "DEPwD Disability Welfare Helpdesk",
+    "elderline": "Elderline (Senior Citizens Disability & Care)",
+    "telemanas": "Tele-MANAS (24×7 Tele-Mental Health)",
+    "women": "Women in Distress Helpline",
+    "childline": "Childline (Child Disability & Care)"
+  },
+  "returnHome": "Return home",
+  "clearData": "Clear my data"
+}

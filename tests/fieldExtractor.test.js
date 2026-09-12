@@ -130,6 +130,24 @@ Signature`,
     },
   },
   {
+    name: 'Aadhaar ignores identity slogans and keeps the person name',
+    text: `GOVERNMENT OF INDIA
+UNIQUE IDENTIFICATION AUTHORITY OF INDIA
+My Aadhaar, My Identity
+To:
+Rajesh Kumar Verma
+S/O: Suresh Verma
+DOB: 14/07/1982
+Gender: MALE
+Your Aadhaar No:
+6789 1234 5678`,
+    expected: {
+      name: 'Rajesh Kumar Verma',
+      dob: '14/07/1982',
+      id: '6789 1234 5678',
+    },
+  },
+  {
     name: 'Real Production Disability Certificate with UDID and Department header',
     text: `DEPARTMENT OF EMPOWERMENT OF PERSONS WITH DISABILITIES
 GOVERNMENT OF INDIA

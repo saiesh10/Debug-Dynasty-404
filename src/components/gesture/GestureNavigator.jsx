@@ -1,46 +1,59 @@
 import { useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigation } from '../../context/NavigationContext'
 import { usePrimaryAction } from '../common/OneKeyNavProvider'
 import GestureCamera from './GestureCamera'
 import { useGestureControl } from './GestureSession'
 
 function GestureNavigator() {
+  const { t } = useTranslation(['gesture', 'common'])
   const { goHome, navigateTo } = useNavigation()
   const { applyGesture, guideOpen, buttonsOnly, setButtonsOnly } = useGestureControl()
 
   const openScanner = useCallback(() => {
-    navigateTo('scanner', 'gesture', 'Peace sign recognized — opening scanner')
-  }, [navigateTo])
+    navigateTo(
+      'scanner',
+      'gesture',
+      t('poses.peace_sign.feedback', 'Peace sign recognized — opening scanner'),
+    )
+  }, [navigateTo, t])
 
   usePrimaryAction(openScanner)
 
   return (
     <section className="workspace-panel">
-      <span className="eyebrow">Gesture navigation</span>
-      <h2>Use the five gestures, or open the guide</h2>
+      <span className="eyebrow">{t('gesture:eyebrow', 'Gesture navigation')}</span>
+      <h2>{t('gesture:title', 'Use the five gestures, or open the guide')}</h2>
       <p className="lead">
-        Hold a pose steadily. Peace sign opens the document scanner. Open the “How gestures work” guide anytime if you need a reminder.
+        {t(
+          'gesture:lead',
+          'Hold a pose steadily. Peace sign opens the document scanner. Open the “How gestures work” guide anytime if you need a reminder.',
+        )}
       </p>
       {!buttonsOnly && (
         <GestureCamera paused={guideOpen} onGesture={applyGesture} onFallback={() => setButtonsOnly(true)} />
       )}
       {buttonsOnly && (
         <p className="error-banner">
-          Button navigation is on. Use Open scanner below, or try the camera again.
+          {t('gesture:buttonsOnlyNotice', 'Button navigation is on. Use Open scanner below, or try the camera again.')}
         </p>
       )}
       <div className="action-row">
-        <button className="primary-button" type="button" onClick={openScanner}>Open scanner</button>
+        <button className="primary-button" type="button" onClick={openScanner}>
+          {t('gesture:openScanner', 'Open scanner')}
+        </button>
         {buttonsOnly ? (
           <button className="secondary-button" type="button" onClick={() => setButtonsOnly(false)}>
-            Try camera again
+            {t('gesture:tryCameraAgain', 'Try camera again')}
           </button>
         ) : (
           <button className="secondary-button" type="button" onClick={() => setButtonsOnly(true)}>
-            Switch to button navigation
+            {t('gesture:switchToButtons', 'Switch to button navigation')}
           </button>
         )}
-        <button className="secondary-button" type="button" onClick={goHome}>Change mode</button>
+        <button className="secondary-button" type="button" onClick={goHome}>
+          {t('common:nav.changeMode', 'Change mode')}
+        </button>
       </div>
     </section>
   )

@@ -1,4 +1,7 @@
+import { useTranslation } from 'react-i18next'
+
 function CameraErrorPanel({ errorInfo, onRetry, onFallback, showFallbackAction }) {
+  const { t } = useTranslation('scanner')
   if (!errorInfo) return null
 
   return (
@@ -9,11 +12,11 @@ function CameraErrorPanel({ errorInfo, onRetry, onFallback, showFallbackAction }
       </p>
       <div className="action-row">
         <button className="primary-button" type="button" onClick={onRetry}>
-          Try camera again
+          {t('cameraErrors.tryAgain', 'Try camera again')}
         </button>
         {showFallbackAction && onFallback && (
           <button className="secondary-button" type="button" onClick={onFallback}>
-            Switch to button navigation
+            {t('cameraErrors.switchButtons', 'Switch to button navigation')}
           </button>
         )}
       </div>

@@ -11,11 +11,13 @@ test('parseVoiceIntent maps explore, emergency, and home commands', () => {
 
 test('parseVoiceIntent and parseVoiceCommand map talk-to-navigate flow', () => {
   assert.equal(parseVoiceIntent('find schemes'), 'find_schemes')
+  assert.equal(parseVoiceIntent('find scheme'), 'find_schemes')
   assert.equal(parseVoiceIntent('find my schemes'), 'find_schemes')
   assert.equal(parseVoiceIntent('confirm details'), 'find_schemes')
   assert.equal(parseVoiceIntent('proceed'), 'find_schemes')
 
   assert.equal(parseVoiceIntent('choose scheme 1'), 'choose_scheme_1')
+  assert.equal(parseVoiceIntent('choose scheme'), 'choose_scheme_1')
   assert.equal(parseVoiceIntent('select scheme 2'), 'choose_scheme_2')
   assert.equal(parseVoiceIntent('apply scheme 3'), 'choose_scheme_3')
   assert.equal(parseVoiceIntent('first scheme'), 'choose_scheme_1')

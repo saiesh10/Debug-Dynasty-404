@@ -1,0 +1,64 @@
+{
+  "eyebrow": "குரல் வழிசெலுத்தல் உதவியாளர்",
+  "title": "உங்களுக்கு என்ன வேண்டும் என்று சொல்லுங்கள்",
+  "lead": "குரல் அங்கீகாரம் செயலில் உள்ளது மற்றும் கேட்கிறது. பொத்தான்களைத் தொடாமல் வழிசெலுத்தப் பேசுங்கள்.",
+  "status": {
+    "listeningSpeech": "பேச்சைக் கேட்கிறது…",
+    "listeningMic": "மைக்ரோஃபோன் கேட்கிறது…",
+    "connecting": "மைக்ரோஃபோன் இணைகிறது…",
+    "paused": "மைக்ரோஃபோன் இடைநிறுத்தப்பட்டது"
+  },
+  "hearing": "கேட்டது: “{{transcript}}”",
+  "speakPrompt": "மைக்ரோஃபோனில் பேசுங்கள் — “explore schemes” அல்லது “திட்டங்களைத் தேடுங்கள்” என்று கூறுங்கள்",
+  "chips": {
+    "explore": "🗣️ “explore schemes” → ஸ்கேனரைத் திறக்குக",
+    "find": "🗣️ “find schemes” → திட்டங்களைப் பார்க்கவும்",
+    "emergency": "🗣️ “emergency” → அவசர உதவி",
+    "home": "🗣️ “go home” → முதன்மை மெனு"
+  },
+  "micRetry": "மைக்ரோஃபோனை மீண்டும் முயற்சிக்கவும்",
+  "openScanner": "ஸ்கேனரைத் திறக்குக →",
+  "muteMic": "மைக்கை நிறுத்துக",
+  "unmuteMic": "மைக்கை இயக்குக",
+  "muteShort": "மைக் மியூட்",
+  "unmuteShort": "அன்மியூட்",
+  "exitVoice": "குரல் பயன்முறையிலிருந்து வெளியேறு",
+  "talkToNavigate": "பேசி வழிசெலுத்துங்கள்",
+  "voiceNavigatorListening": "குரல் வழிசெலுத்தி: கேட்கிறது…",
+  "voiceNavigatorConnecting": "மைக் இணைகிறது…",
+  "voiceNavigatorPaused": "குரல் வழிசெலுத்தி: இடைநிறுத்தப்பட்டது",
+  "fallback": {
+    "unavailable": "குரல் உள்ளீடு கிடைக்கவில்லை. தட்டச்சு செய்க.",
+    "unclear": "பேச்சு தெளிவாக இல்லை. தட்டச்சு செய்க.",
+    "general": "நீங்கள் தட்டச்சு செய்தும் வழிசெலுத்தலாம்",
+    "placeholder": "கட்டளையைத் தட்டச்சு செய்க, எ.கா: explore schemes"
+  },
+  "hints": {
+    "home": "“explore schemes”, “voice mode”, அல்லது “emergency” என்று சொல்லுங்கள்",
+    "voice": "“explore schemes”, “emergency”, அல்லது “go home” என்று சொல்லுங்கள்",
+    "scanner": "“capture”, “upload”, “find scheme”, அல்லது “go home” என்று சொல்லுங்கள்",
+    "confirm": "“find scheme”, “rescan”, அல்லது “go home” என்று சொல்லுங்கள்",
+    "schemes": "“choose scheme 1”, “choose scheme 2”, அல்லது “go back” என்று சொல்லுங்கள்",
+    "application": "“save pdf”, “back to schemes”, அல்லது “go home” என்று சொல்லுங்கள்",
+    "submitted": "“save pdf”, “download pdf”, அல்லது “go home” என்று சொல்லுங்கள்",
+    "emergency": "“go home” அல்லது “go back” என்று சொல்லுங்கள்"
+  },
+  "spoken": {
+    "voiceReady": "குரல் உதவியாளர் தயார். ஆவணத்தை ஸ்கேன் செய்ய 'explore schemes' அல்லது 'find schemes' எனக் கூறுங்கள்.",
+    "scannerReady": "ஆவண ஸ்கேனர் தயார். அட்டையை வைத்து 'find scheme' எனக் கூறுங்கள்.",
+    "confirmDetails": "உங்கள் விவரங்களைச் சரிபார்க்கவும் {{name}}. திட்டங்களைப் பார்க்க 'find scheme' எனக் கூறுங்கள்.",
+    "schemesFound": "{{count}} திட்டங்கள் கண்டறியப்பட்டன. முதல் திட்டத்திற்கு 'choose scheme 1' எனக் கூறுங்கள்.",
+    "noSchemes": "திட்டங்கள் எதுவும் பொருந்தவில்லை. 'rescan' அல்லது 'go back' எனக் கூறுங்கள்.",
+    "appReview": "{{scheme}} திட்டத்திற்கான விண்ணப்ப ஆய்வு. 'save pdf' எனக் கூறுங்கள்.",
+    "appSubmitted": "விண்ணப்பம் முடிந்தது. கோப்பைப் பதிவிறக்க 'save pdf' எனக் கூறுங்கள்.",
+    "openingEmergency": "அவசர உதவி திறக்கப்படுகிறது.",
+    "goingBack": "பின்செல்கிறது.",
+    "openingScanner": "ஸ்கேனர் திறக்கப்படுகிறது.",
+    "capturingDoc": "ஆவணம் எடுக்கப்படுகிறது.",
+    "restartingScanner": "ஸ்கேனர் மீண்டும் தொடங்கப்படுகிறது.",
+    "findingSchemes": "திட்டங்களைத் தேடுகிறது.",
+    "selectedScheme": "{{name}} தேர்ந்தெடுக்கப்பட்டது.",
+    "appGenerated": "விண்ணப்பம் உருவாக்கப்பட்டது.",
+    "pdfDownloaded": "விண்ணப்ப பிடிஎஃப் பதிவிறக்கப்பட்டது."
+  }
+}

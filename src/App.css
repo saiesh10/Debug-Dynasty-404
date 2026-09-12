@@ -19,11 +19,12 @@ body {
   margin: 0;
   background: var(--paper);
   color: var(--ink);
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--app-font, 'DM Sans', sans-serif);
 }
 
 button,
-input {
+input,
+select {
   font: inherit;
 }
 
@@ -54,7 +55,7 @@ button {
   align-items: center;
   gap: 10px;
   color: var(--ink);
-  font: 700 21px 'Space Grotesk', sans-serif;
+  font: 700 21px 'Space Grotesk', var(--app-font, 'DM Sans'), sans-serif;
   padding: 0;
 }
 
@@ -105,7 +106,49 @@ button {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+  align-items: center;
   justify-content: flex-end;
+}
+
+.lang-switcher-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 4px 8px 4px 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.lang-icon {
+  font-size: 15px;
+  user-select: none;
+}
+
+.lang-select {
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+  padding: 4px 2px;
+}
+
+.lang-select:focus-visible {
+  outline: 2px solid var(--teal);
+  border-radius: 4px;
+}
+
+.loading-splash {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--teal-dark);
 }
 
 .app-main {

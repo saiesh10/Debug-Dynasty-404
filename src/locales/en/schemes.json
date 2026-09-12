@@ -1,0 +1,13 @@
+{
+  "eyebrow": "Step 3 of 3 · Matched support",
+  "title": "Support that may be right for you",
+  "lead": "Based on the details you confirmed, {{count}} schemes are ready to review.",
+  "voiceLead": " Speak “choose scheme 1” or “choose scheme 2” to select a scheme.",
+  "noneMatched": "No schemes matched these details. You can rescan or edit the confirmed fields.",
+  "card": {
+    "schemeTag": "Scheme #{{number}} · Official Govt Scheme",
+    "voicePill": "🗣️ Say “Choose scheme {{number}}”",
+    "officialPortal": "Official Portal ↗",
+    "applyBtn": "Apply for Scheme #{{number}} ({{name}}) →"
+  }
+}

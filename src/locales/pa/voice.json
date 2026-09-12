@@ -1,0 +1,64 @@
+{
+  "eyebrow": "ਵੌਇਸ ਨੇਵੀਗੇਸ਼ਨ ਸਹਾਇਕ",
+  "title": "ਦੱਸੋ ਤੁਹਾਨੂੰ ਕੀ ਚਾਹੀਦਾ ਹੈ",
+  "lead": "ਵੌਇਸ ਪਛਾਣ ਸਰਗਰਮ ਹੈ ਅਤੇ ਸੁਣ ਰਹੀ ਹੈ। ਬਟਨ ਛੂਹੇ ਬਿਨਾਂ ਨੇਵੀਗੇਟ ਕਰਨ ਲਈ ਬੋਲੋ।",
+  "status": {
+    "listeningSpeech": "ਬੋਲ ਸੁਣ ਰਿਹਾ ਹੈ…",
+    "listeningMic": "ਮਾਈਕ੍ਰੋਫੋਨ ਸੁਣ ਰਿਹਾ ਹੈ…",
+    "connecting": "ਮਾਈਕ੍ਰੋਫੋਨ ਕਨੈਕਟ ਹੋ ਰਿਹਾ ਹੈ…",
+    "paused": "ਮਾਈਕ੍ਰੋਫੋਨ ਰੋਕਿਆ ਗਿਆ"
+  },
+  "hearing": "ਸੁਣਿਆ: “{{transcript}}”",
+  "speakPrompt": "ਮਾਈਕ੍ਰੋਫੋਨ ਵਿੱਚ ਬੋਲੋ — “explore schemes” ਜਾਂ “ਸਕੀਮਾਂ ਖੋਜੋ” ਕਹੋ",
+  "chips": {
+    "explore": "🗣️ “explore schemes” → ਸਕੈਨਰ ਖੋਲ੍ਹੋ",
+    "find": "🗣️ “find schemes” → ਸਕੀਮਾਂ ਦੇਖੋ",
+    "emergency": "🗣️ “emergency” → ਐਮਰਜੈਂਸੀ ਸਹਾਇਤਾ",
+    "home": "🗣️ “go home” → ਮੁੱਖ ਮੀਨੂ"
+  },
+  "micRetry": "ਮਾਈਕ੍ਰੋਫੋਨ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ",
+  "openScanner": "ਸਕੈਨਰ ਖੋਲ੍ਹੋ →",
+  "muteMic": "ਮਾਈਕ ਬੰਦ ਕਰੋ",
+  "unmuteMic": "ਮਾਈਕ ਚਾਲੂ ਕਰੋ",
+  "muteShort": "ਮਾਈਕ ਬੰਦ",
+  "unmuteShort": "ਮਾਈਕ ਚਾਲੂ",
+  "exitVoice": "ਵੌਇਸ ਮੋਡ ਬੰਦ ਕਰੋ",
+  "talkToNavigate": "ਬੋਲ ਕੇ ਨੇਵੀਗੇਟ ਕਰੋ",
+  "voiceNavigatorListening": "ਵੌਇਸ ਨੇਵੀਗੇਟਰ: ਸੁਣ ਰਿਹਾ ਹੈ…",
+  "voiceNavigatorConnecting": "ਮਾਈਕ ਕਨੈਕਟ ਹੋ ਰਿਹਾ ਹੈ…",
+  "voiceNavigatorPaused": "ਵੌਇਸ ਨੇਵੀਗੇਟਰ: ਰੋਕਿਆ ਗਿਆ",
+  "fallback": {
+    "unavailable": "ਵੌਇਸ ਇਨਪੁੱਟ ਉਪਲਬਧ ਨਹੀਂ ਹੈ। ਟਾਈਪ ਕਰਕੇ ਹੁਕਮ ਦਿਓ।",
+    "unclear": "ਆਵਾਜ਼ ਸਾਫ਼ ਨਹੀਂ ਸੀ। ਟਾਈਪ ਕਰਕੇ ਹੁਕਮ ਦਿਓ।",
+    "general": "ਤੁਸੀਂ ਟਾਈਪ ਕਰਕੇ ਵੀ ਹੁਕਮ ਦੇ ਸਕਦੇ ਹੋ",
+    "placeholder": "ਹੁਕਮ ਟਾਈਪ ਕਰੋ, ਜਿਵੇਂ: explore schemes"
+  },
+  "hints": {
+    "home": "ਕਹੋ “explore schemes”, “voice mode”, ਜਾਂ “emergency”",
+    "voice": "ਕਹੋ “explore schemes”, “emergency”, ਜਾਂ “go home”",
+    "scanner": "ਕਹੋ “capture”, “upload”, “find scheme”, ਜਾਂ “go home”",
+    "confirm": "ਕਹੋ “find scheme”, “rescan”, ਜਾਂ “go home”",
+    "schemes": "ਕਹੋ “choose scheme 1”, “choose scheme 2”, ਜਾਂ “go back”",
+    "application": "ਕਹੋ “save pdf”, “back to schemes”, ਜਾਂ “go home”",
+    "submitted": "ਕਹੋ “save pdf”, “download pdf”, ਜਾਂ “go home”",
+    "emergency": "ਕਹੋ “go home” ਜਾਂ “go back”"
+  },
+  "spoken": {
+    "voiceReady": "ਵੌਇਸ ਸਹਾਇਕ ਤਿਆਰ ਹੈ। ਸਕੈਨ ਕਰਨ ਲਈ 'explore schemes' ਜਾਂ 'find schemes' ਕਹੋ।",
+    "scannerReady": "ਦਸਤਾਵੇਜ਼ ਸਕੈਨਰ ਤਿਆਰ ਹੈ। ਕਾਰਡ ਸਾਹਮਣੇ ਰੱਖੋ ਅਤੇ 'find scheme' ਕਹੋ।",
+    "confirmDetails": "ਆਪਣੇ ਵੇਰਵੇ ਦੀ ਜਾਂਚ ਕਰੋ {{name}}। ਸਕੀਮਾਂ ਦੇਖਣ ਲਈ 'find scheme' ਕਹੋ।",
+    "schemesFound": "{{count}} ਸਕੀਮਾਂ ਮਿਲੀਆਂ। ਪਹਿਲੀ ਸਕੀਮ ਲਈ 'choose scheme 1' ਕਹੋ।",
+    "noSchemes": "ਕੋਈ ਸਕੀਮ ਨਹੀਂ ਮਿਲੀ। 'rescan' ਜਾਂ 'go back' ਕਹੋ।",
+    "appReview": "{{scheme}} ਲਈ ਅਰਜ਼ੀ ਸਮੀਖਿਆ। ਅਰਜ਼ੀ ਬਣਾਉਣ ਲਈ 'save pdf' ਕਹੋ।",
+    "appSubmitted": "ਅਰਜ਼ੀ ਪੂਰੀ ਹੋਈ। ਫਾਈਲ ਡਾਊਨਲੋਡ ਕਰਨ ਲਈ 'save pdf' ਕਹੋ।",
+    "openingEmergency": "ਐਮਰਜੈਂਸੀ ਸਹਾਇਤਾ ਖੋਲ੍ਹ ਰਹੇ ਹਾਂ।",
+    "goingBack": "ਪਿੱਛੇ ਜਾ ਰਹੇ ਹਾਂ।",
+    "openingScanner": "ਸਕੈਨਰ ਖੋਲ੍ਹ ਰਹੇ ਹਾਂ।",
+    "capturingDoc": "ਦਸਤਾਵੇਜ਼ ਕੈਪਚਰ ਕਰ ਰਹੇ ਹਾਂ।",
+    "restartingScanner": "ਸਕੈਨਰ ਮੁੜ ਸ਼ੁਰੂ ਕਰ ਰਹੇ ਹਾਂ।",
+    "findingSchemes": "ਸਕੀਮਾਂ ਖੋਜ ਰਹੇ ਹਾਂ।",
+    "selectedScheme": "{{name}} ਚੁਣਿਆ ਗਿਆ।",
+    "appGenerated": "ਅਰਜ਼ੀ ਤਿਆਰ ਹੋ ਗਈ ਹੈ।",
+    "pdfDownloaded": "ਅਰਜ਼ੀ ਪੀਡੀਐਫ ਡਾਊਨਲੋਡ ਹੋ ਗਈ।"
+  }
+}

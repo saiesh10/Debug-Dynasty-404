@@ -59,6 +59,7 @@ See [docs/architecture.md](docs/architecture.md) for the implemented data flow.
 
 ## Known Limitations
 
+- Full UI is available in 9 languages (English + 8 major Indian languages across all major script families: Hindi, Bengali, Marathi, Telugu, Tamil, Gujarati, Kannada, Punjabi). Voice input (STT) accuracy varies by language and browser — Hindi and English have the most reliable browser support; other languages fall back to text input automatically if recognition is unavailable or low-confidence.
 - Gesture poses are classified from HandLandmarker landmarks, not a full gesture-video model. Accuracy drops in **low light**, with motion blur, or when only part of the hand is visible. A pose must be held about **500ms** before it fires.
 - OCR field guesses below **70%** confidence always require manual confirmation. Even high-confidence scans can misread similar characters.
 - There is **no live government eligibility API**. Matching uses a static `src/data/schemes.json` file.
@@ -70,3 +71,4 @@ See [docs/architecture.md](docs/architecture.md) for the implemented data flow.
 ## Team
 
 Built as a DivyangSetu accessibility prototype. Identity details stay on the citizen’s device.
+
