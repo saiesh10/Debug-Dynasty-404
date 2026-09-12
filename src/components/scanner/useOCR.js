@@ -21,7 +21,12 @@ function sharpenImage(data, width, height) {
 function prepareImage(image) {
   if (typeof document === 'undefined' || !image?.width || !image?.height) return image
 
-  const targetWidth = Math.max(image.width, Math.min(2400, Math.round(image.width * 1.5)))
+  let targetWidth = image.width
+  if (image.width < 1400) {
+    targetWidth = Math.round(image.width * 1.5)
+  } else if (image.width > 2400) {
+    targetWidth = 2400
+  }
   const scale = targetWidth / image.width
   const canvas = document.createElement('canvas')
   canvas.width = Math.round(image.width * scale)
@@ -85,7 +90,6 @@ async function getOCRWorker() {
       const worker = await createWorker('eng+hin')
       await worker.setParameters({
         preserve_interword_spaces: '1',
-        tessedit_pageseg_mode: '3',
         user_defined_dpi: '300',
       })
       cachedWorker = worker
@@ -96,6 +100,21 @@ async function getOCRWorker() {
     })
   }
   return workerInitPromise
+}
+
+function mergeOCRResults(primary, secondary) {
+  const primaryText = primary?.data?.text || ''
+  const secondaryText = secondary?.data?.text || ''
+  const mergedLines = [...primaryText.split(/\r?\n/), ...secondaryText.split(/\r?\n/)]
+    .map((line) => line.trim())
+    .filter(Boolean)
+  const uniqueLines = [...new Set(mergedLines)]
+
+  return {
+    text: uniqueLines.join('\n'),
+    confidence: Math.max(Number(primary?.data?.confidence || 0), Number(secondary?.data?.confidence || 0)),
+    words: [...(primary?.data?.words || []), ...(secondary?.data?.words || [])],
+  }
 }
 
 export function useOCR() {
@@ -112,10 +131,16 @@ export function useOCR() {
     try {
       const worker = await getOCRWorker()
       const processedImage = prepareImage(image)
-      const result = await worker.recognize(processedImage)
-      const nextText = result?.data?.text || ''
-      const nextConfidence = Number(result?.data?.confidence || 0)
-      const nextWords = result?.data?.words || []
+      // Pass 1: Auto page segmentation (PSM 3) for mixed card layouts
+      await worker.setParameters({ tessedit_pageseg_mode: '3' })
+      const autoResult = await worker.recognize(processedImage)
+      // Pass 2: Sparse text / uniform block pass on original image
+      await worker.setParameters({ tessedit_pageseg_mode: '11' })
+      const sparseResult = await worker.recognize(image)
+      const result = mergeOCRResults(autoResult, sparseResult)
+      const nextText = result.text
+      const nextConfidence = result.confidence
+      const nextWords = result.words
 
       console.group?.('[OCR ENGINE LOG]') || console.log('=== [OCR ENGINE LOG] ===')
       console.log('(a) RAW OCR TEXT OUTPUT FROM TESSERACT:\n' + (nextText || '<EMPTY>'))

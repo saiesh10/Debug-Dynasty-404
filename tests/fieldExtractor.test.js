@@ -222,6 +222,169 @@ Mother : Babita Babu Upardekar
       id: '8472 5584 2494',
     },
   },
+  {
+    name: 'Bilingual Aadhaar Card with Devanagari above English',
+    text: `भारत सरकार
+GOVERNMENT OF INDIA
+साईश बाबु उपर्डेकर
+Saiesh Babu Upardekar
+जन्म तारीख / DOB: 10/10/2006
+लिंग / Gender: पुरुष / MALE
+8472 5584 2494
+मेरा आधार, मेरी पहचान`,
+    expected: {
+      name: 'Saiesh Babu Upardekar',
+      dob: '10/10/2006',
+      id: '8472 5584 2494',
+    },
+  },
+  {
+    name: 'PAN Card with honorific title and spaced ID',
+    text: `INCOME TAX DEPARTMENT
+GOVT. OF INDIA
+Permanent Account Number Card
+नाम / Name: Shri Saiesh Babu Upardekar
+पिता का नाम / Father's Name: Babu Upardekar
+Date of Birth: 10 / 10 / 2006
+ARQPU 5816 K`,
+    expected: {
+      name: 'Saiesh Babu Upardekar',
+      dob: '10 / 10 / 2006',
+      id: 'ARQPU5816K',
+    },
+  },
+  {
+    name: 'Voter ID with Marathi label matdarache naav',
+    text: `भारत निवडणूक आयोग
+ELECTION COMMISSION OF INDIA
+मतदार फोटो ओळख पत्र
+WBF1234567
+मतदाराचे नाव: Amit Subhash Roy
+Name: Amit Roy
+वडिलांचे नाव: Subhash Roy
+Date of Birth / Age: 12-04-1986`,
+    expected: {
+      name: 'Amit Subhash Roy',
+      dob: '12-04-1986',
+      id: 'WBF1234567',
+    },
+  },
+  {
+    name: 'Driving Licence Smart Card positional layout without label',
+    text: `UNION OF INDIA
+TRANSPORT DEPARTMENT MAHARASHTRA
+MH-14 20180012345
+Priya Rajesh Sharma
+S/D/W: Rajesh Sharma
+DOB: 22-04-1992
+Valid Till: 21-04-2038
+Address: Flat 4, Sea Breeze, Bandra West, Mumbai 400050`,
+    expected: {
+      name: 'Priya Rajesh Sharma',
+      dob: '22-04-1992',
+      id: 'MH-14 20180012345',
+      address: /Mumbai.*400050/,
+    },
+  },
+  {
+    name: 'Real Production Aadhaar Letter with z JI OCR noise and envelope address',
+    text: `Government of India
+नामांकन क्रम / Enrollment No.: 2016/00970/03501
+
+To
+z JI
+Saiesh Babu Upardekar
+S/O Babu J Upardekar
+H.No.50,Non Mon,Sai Bini Bhat
+Vasco-Da-Gama S.O
+Goa-Panaji
+South Goa
+Goa 403802
+MD864187185FH
+
+आपका आधार क्रमांक / Your Aadhaar No. :
+8472 5584 2494
+मेरा आधार, मेरी पहचान
+---------------------------------
+भारत सरकार
+Government of India
+Saiesh Babu Upardekar
+माता : Babita Babu Upardekar
+Mother : Babita Babu Upardekar
+जन्म तिथि / DOB : 10/10/2006
+पुरुष / Male
+8472 5584 2494
+मेरा आधार, मेरी पहचान`,
+    expected: {
+      name: 'Saiesh Babu Upardekar',
+      dob: '10/10/2006',
+      id: '8472 5584 2494',
+      address: /H\.No\.50.*Vasco-Da-Gama.*Goa 403802/,
+    },
+  },
+  {
+    name: 'Tamil Nadu Aadhaar Letter with regional script and envelope block',
+    text: `Government of India
+Enrollment No: 1024/98765/12345
+
+To
+கவிதா சுந்தரம்
+Kavitha Sundaram
+D/O Sundaram R
+Plot 12, Anna Nagar West
+Chennai, Tamil Nadu 600040
+
+Your Aadhaar No. / உங்கள் ஆதார் எண் :
+3456 7890 1232
+मेरा आधार, मेरी पहचान
+---------------------------------
+Government of India
+Kavitha Sundaram
+DOB : 15/05/1993
+Female
+3456 7890 1232`,
+    expected: {
+      name: 'Kavitha Sundaram',
+      dob: '15/05/1993',
+      id: '3456 7890 1232',
+      address: /Anna Nagar West.*Chennai.*600040/,
+    },
+  },
+  {
+    name: 'Punjab Aadhaar PVC Card with Gurmukhi and English',
+    text: `भारत सरकार
+GOVERNMENT OF INDIA
+ਗੁਰਪ੍ਰੀਤ ਸਿੰਘ
+Gurpreet Singh
+Father : Harbhajan Singh
+जन्म तिथि / DOB : 20/03/1985
+पुरुष / MALE
+9876 5432 1091
+मेरा आधार, मेरी पहचान`,
+    expected: {
+      name: 'Gurpreet Singh',
+      dob: '20/03/1985',
+      id: '9876 5432 1091',
+    },
+  },
+  {
+    name: 'West Bengal Aadhaar Letter with Bengali and English',
+    text: `Government of India
+To
+দেবাশিস চক্রবর্তী
+Debashis Chakraborty
+C/O Mihir Chakraborty
+Flat 3B, Lake Gardens
+Kolkata, West Bengal 700045
+Your Aadhaar No. :
+6789 1234 5678
+मेरा आधार, मेरी पहचान`,
+    expected: {
+      name: 'Debashis Chakraborty',
+      id: '6789 1234 5678',
+      address: /Lake Gardens.*Kolkata.*700045/,
+    },
+  },
 ]
 
 for (const sample of messySamples) {

@@ -11,6 +11,8 @@
     "holdSteadyMissing": "Detected {{docName}}. Hold steady to scan: {{missing}}…",
     "holdSteadyRefine": "Scanning {{docName}}… Hold steady to refine details.",
     "cameraStarting": "Camera starting… Position document inside the frame.",
+    "uploading": "Processing uploaded document photo…",
+    "uploadError": "That photo could not be read. Please choose another image.",
     "buttonNavOn": "Button navigation is on. Enter your details manually to continue."
   },
   "verifiedPanel": {

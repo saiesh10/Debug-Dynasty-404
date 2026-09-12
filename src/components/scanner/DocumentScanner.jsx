@@ -247,14 +247,60 @@ function DocumentScanner() {
   }, [captureFrame, isReading, isVerified, showCorrection, stream])
 
   const onUpload = async (event) => {
-    const file = event.target.files?.[0]
+    const input = event.target
+    const file = input.files?.[0]
+    input.value = ''
     if (!file) return
-    const image = await createImageBitmap(file)
-    const canvas = canvasRef.current
-    canvas.width = image.width
-    canvas.height = image.height
-    canvas.getContext('2d').drawImage(image, 0, 0)
-    await runOcrOnImage(canvas, true)
+
+    stopCamera()
+    pauseCountdown()
+    isVerifiedRef.current = false
+    hasCommittedRef.current = false
+    draftFieldsRef.current = null
+    setIsVerified(false)
+    setDraftFields(null)
+    setScanPassCount(0)
+    setStatus(t('scanner:status.uploading', 'Processing uploaded document photo…'))
+
+    try {
+      let image = null
+      try {
+        if (typeof createImageBitmap === 'function') {
+          image = await createImageBitmap(file, { imageOrientation: 'from-image' })
+        }
+      } catch (bitmapErr) {
+        console.warn('[upload bitmap fallback]', bitmapErr)
+      }
+
+      if (!image) {
+        image = await new Promise((resolve, reject) => {
+          const img = new Image()
+          const url = URL.createObjectURL(file)
+          img.onload = () => {
+            URL.revokeObjectURL(url)
+            resolve(img)
+          }
+          img.onerror = (err) => {
+            URL.revokeObjectURL(url)
+            reject(err)
+          }
+          img.src = url
+        })
+      }
+
+      const canvas = canvasRef.current
+      if (canvas) {
+        canvas.width = image.width || 1280
+        canvas.height = image.height || 720
+        const ctx = canvas.getContext('2d')
+        ctx.drawImage(image, 0, 0)
+        image.close?.()
+        await runOcrOnImage(canvas, true)
+      }
+    } catch (uploadError) {
+      console.error('[document upload]', uploadError)
+      setStatus(t('scanner:status.uploadError', 'That photo could not be read. Please choose another image.'))
+    }
   }
 
   const updateDraftField = (key, value) => {
