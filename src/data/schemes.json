@@ -2,85 +2,177 @@
   {
     "id": "adip",
     "name": "ADIP Assistive Devices Support",
-    "detail": "Aids and appliances for eligible persons with disabilities, including hearing aids and mobility devices.",
-    "amount": "Up to Rs 15,000 per device cycle",
-    "disabilityTypes": ["any"],
-    "states": ["All"],
+    "officialName": "Scheme of Assistance to Disabled Persons for Purchase/Fitting of Aids and Appliances (ADIP)",
+    "ministry": "Ministry of Social Justice & Empowerment (ALIMCO / DEPwD)",
+    "detail": "Free high-quality aids and appliances including motorized tricycles, smart canes, digital hearing aids, braille kits, and artificial limbs.",
+    "amount": "100% subsidy up to ₹15,000 (₹30,000 for motorized tricycles)",
+    "portalUrl": "https://www.alimco.in",
+    "disabilityTypes": [
+      "any"
+    ],
+    "states": [
+      "All"
+    ],
     "incomeCeiling": 1500000
   },
   {
     "id": "nsap-disability-pension",
-    "name": "NSAP Disability Pension Support",
-    "detail": "Monthly income support for adults with benchmark disability living below the income ceiling.",
-    "amount": "Up to Rs 3,000 per month",
+    "name": "Indira Gandhi National Disability Pension (NSAP)",
+    "officialName": "Indira Gandhi National Disability Pension Scheme (IGNDPS)",
+    "ministry": "Ministry of Rural Development & State Social Welfare Departments",
+    "detail": "Direct monthly financial assistance paid into bank account for adults with severe/benchmark disabilities, with central and state contributions.",
+    "amount": "₹1,000 to ₹3,000 per month (varying by State top-up)",
+    "portalUrl": "https://nsap.nic.in",
     "minAge": 18,
     "maxAge": 79,
-    "disabilityTypes": ["any"],
-    "states": ["All"],
+    "disabilityTypes": [
+      "any"
+    ],
+    "states": [
+      "All"
+    ],
     "incomeCeiling": 300000
   },
   {
     "id": "pre-matric-scholarship",
     "name": "Pre-Matric Scholarship for Students with Disabilities",
-    "detail": "Education support for school-age students with disabilities.",
-    "amount": "Up to Rs 50,000 per year",
+    "officialName": "Department of Empowerment of Persons with Disabilities Pre-Matric Scholarship",
+    "ministry": "DEPwD, Ministry of Social Justice & Empowerment (NSP)",
+    "detail": "Government scholarship covering monthly maintenance allowance, book grants, and disability allowances for Class 9 and 10 students.",
+    "amount": "Up to ₹50,000 per year (₹1,000/mo maintenance + ₹1,000 book grant)",
+    "portalUrl": "https://scholarships.gov.in",
     "minAge": 5,
     "maxAge": 18,
-    "disabilityTypes": ["any"],
-    "states": ["All"],
+    "disabilityTypes": [
+      "any"
+    ],
+    "states": [
+      "All"
+    ],
     "incomeCeiling": 800000
   },
   {
     "id": "post-matric-scholarship",
     "name": "Post-Matric Disability Scholarship",
-    "detail": "College and vocational education support for young adults with disabilities.",
-    "amount": "Up to Rs 60,000 per year",
+    "officialName": "Post-Matric Scholarship for Students with Disabilities",
+    "ministry": "DEPwD, Ministry of Social Justice & Empowerment (NSP)",
+    "detail": "Financial assistance covering university tuition, maintenance allowances, reader allowances, and specialized study equipment for higher education.",
+    "amount": "Up to ₹60,000 per year plus complete tuition reimbursement",
+    "portalUrl": "https://scholarships.gov.in",
     "minAge": 17,
     "maxAge": 30,
-    "disabilityTypes": ["any"],
-    "states": ["All"],
+    "disabilityTypes": [
+      "any"
+    ],
+    "states": [
+      "All"
+    ],
     "incomeCeiling": 800000
   },
   {
     "id": "niramaya",
-    "name": "Niramaya Health Insurance",
-    "detail": "Health insurance cover for persons with specified disabilities, including therapy and hospitalisation.",
-    "amount": "Cover up to Rs 1,00,000 per year",
-    "disabilityTypes": ["any"],
-    "states": ["All"],
+    "name": "Niramaya Health Insurance Scheme",
+    "officialName": "Niramaya Health Insurance (The National Trust)",
+    "ministry": "The National Trust for Welfare of Persons with Autism, CP, MR & MD",
+    "detail": "Comprehensive health insurance cover across India for OPD consultations, diagnostic pathology, dental care, corrective surgeries, and continuous therapies.",
+    "amount": "Cashless health cover up to ₹1,00,000 per year",
+    "portalUrl": "https://thenationaltrust.gov.in",
+    "disabilityTypes": [
+      "any"
+    ],
+    "states": [
+      "All"
+    ],
     "incomeCeiling": 2000000
   },
   {
     "id": "maharashtra-udid-support",
     "name": "Maharashtra UDID Facilitation Support",
-    "detail": "State facilitation for Unique Disability ID enrolment and local scheme bridging in Maharashtra.",
-    "amount": "Facilitation grant up to Rs 5,000",
+    "officialName": "Maharashtra Sanjay Gandhi Niradhar Anudan Yojana & UDID Bridge",
+    "ministry": "Department of Social Justice & Special Assistance, Government of Maharashtra",
+    "detail": "State facilitation grant and monthly allowance for Unique Disability ID holders residing in Maharashtra for local welfare bridging.",
+    "amount": "Monthly pension ₹1,500/month plus UDID facilitation up to ₹5,000",
+    "portalUrl": "https://sjsa.maharashtra.gov.in",
     "minAge": 0,
     "maxAge": 120,
-    "disabilityTypes": ["any"],
-    "states": ["Maharashtra"],
+    "disabilityTypes": [
+      "any"
+    ],
+    "states": [
+      "Maharashtra"
+    ],
     "incomeCeiling": 1200000
+  },
+  {
+    "id": "goa-dayanand-social-security",
+    "name": "Goa Dayanand Social Security Scheme (DSSS)",
+    "officialName": "Dayanand Social Security Scheme for Persons with Disabilities (Goa)",
+    "ministry": "Directorate of Social Welfare, Government of Goa",
+    "detail": "Dedicated monthly financial assistance for permanent residents of Goa holding disability certificates or UDID cards.",
+    "amount": "₹2,000 to ₹3,500 per month direct bank transfer",
+    "portalUrl": "https://socialwelfare.goa.gov.in",
+    "minAge": 0,
+    "maxAge": 120,
+    "disabilityTypes": [
+      "any"
+    ],
+    "states": [
+      "Goa"
+    ],
+    "incomeCeiling": 1500000
   },
   {
     "id": "skill-training",
     "name": "Accessible India Skill Training Stipend",
-    "detail": "Stipend for job-oriented skill training for working-age persons with disabilities.",
-    "amount": "Rs 2,500 per month during training",
+    "officialName": "National Action Plan for Skill Development of Persons with Disabilities (DEPwD)",
+    "ministry": "Skill Council for Persons with Disability (SCPwD) & MSDE",
+    "detail": "Certified industry-aligned vocational training with monthly travel and boarding stipends, leading to wage employment and self-employment.",
+    "amount": "₹2,500 to ₹3,000 per month during training course",
+    "portalUrl": "https://scpwd.in",
     "minAge": 18,
     "maxAge": 45,
-    "disabilityTypes": ["any"],
-    "states": ["All"],
+    "disabilityTypes": [
+      "any"
+    ],
+    "states": [
+      "All"
+    ],
     "incomeCeiling": 600000
   },
   {
     "id": "senior-care",
-    "name": "Senior Disability Care Assistance",
-    "detail": "Home-based care and caregiver support for older persons with disabilities.",
-    "amount": "Up to Rs 2,000 per month",
+    "name": "Senior Disability Care Assistance (Rashtriya Vayoshri)",
+    "officialName": "Rashtriya Vayoshri Yojana (RVY) - Assisted Living Devices for Senior Citizens",
+    "ministry": "Ministry of Social Justice and Empowerment (ALIMCO)",
+    "detail": "Physical assistive living devices and caregiver assistance for senior citizens with age-related disabilities or benchmark disabilities.",
+    "amount": "Free assistive devices plus up to ₹2,500 per month care support",
+    "portalUrl": "https://www.alimco.in",
     "minAge": 60,
     "maxAge": 120,
-    "disabilityTypes": ["any"],
-    "states": ["All"],
+    "disabilityTypes": [
+      "any"
+    ],
+    "states": [
+      "All"
+    ],
     "incomeCeiling": 500000
+  },
+  {
+    "id": "divyangjan-swavalamban",
+    "name": "Divyangjan Swavalamban Yojana (NHFDC)",
+    "officialName": "National Handicapped Finance and Development Corporation Concessional Loan Scheme",
+    "ministry": "NHFDC, Department of Empowerment of Persons with Disabilities",
+    "detail": "Concessional self-employment loans for starting small businesses, agricultural ventures, professional equipment, or education, with interest rebate for women.",
+    "amount": "Concessional credit up to ₹50,00,000 at 5% to 8% interest p.a.",
+    "portalUrl": "https://www.nhfdc.nic.in",
+    "minAge": 18,
+    "maxAge": 65,
+    "disabilityTypes": [
+      "any"
+    ],
+    "states": [
+      "All"
+    ],
+    "incomeCeiling": 2500000
   }
 ]

@@ -11,6 +11,7 @@ import { useOCR } from './useOCR'
 
 function toCitizenRecord(fields) {
   return {
+    documentType: fields.documentType || null,
     name: fields.name?.value || '',
     dateOfBirth: fields.dateOfBirth?.value || '',
     idNumber: fields.idNumber?.value || '',
@@ -20,6 +21,7 @@ function toCitizenRecord(fields) {
 
 function emptyFields() {
   return {
+    documentType: null,
     name: { value: '', confidence: 0 },
     dateOfBirth: { value: '', confidence: 0 },
     idNumber: { value: '', confidence: 0 },
@@ -31,6 +33,10 @@ function needsManualCorrection(fields) {
   return Object.values(fields).some((field) => (field?.confidence || 0) < OCR_FIELD_CONFIDENCE_THRESHOLD)
 }
 
+function hasExtractedFields(fields) {
+  return Object.values(fields).some((field) => field?.value?.trim())
+}
+
 function DocumentScanner() {
   const videoRef = useRef(null)
   const canvasRef = useRef(null)
@@ -39,6 +45,7 @@ function DocumentScanner() {
   const { stream, errorInfo, startCamera, stopCamera, retryCamera, shouldOfferButtonFallback } = useCamera()
   const { recognize, isReading, error: ocrError } = useOCR()
   const [draftFields, setDraftFields] = useState(null)
+  const [ocrDiagnosis, setOcrDiagnosis] = useState(null)
   const [showCorrection, setShowCorrection] = useState(false)
   const [buttonNavigation, setButtonNavigation] = useState(false)
   const [status, setStatus] = useState('Position an identity document in the frame.')
@@ -62,27 +69,36 @@ function DocumentScanner() {
     navigateTo('confirm', null, 'Document details found. Please confirm them.')
   }, [navigateTo, updateCitizenData])
 
-  const runOcrOnImage = useCallback(async (image) => {
+  const runOcrOnImage = useCallback(async (image, isManualCapture = false) => {
     setStatus('Reading the document on this device…')
     const result = await recognize(image)
     if (result.error) {
       setStatus(result.error)
-      setDraftFields(emptyFields())
-      setShowCorrection(true)
+      if (isManualCapture) {
+        setDraftFields(emptyFields())
+        setShowCorrection(true)
+      }
       return
     }
 
     const fields = extractFields(result.text, result.words)
     setDraftFields(fields)
-    if (needsManualCorrection(fields)) {
-      setShowCorrection(true)
-      setStatus('Some fields need a quick check before we continue.')
+    setOcrDiagnosis(fields._diagnosis)
+
+    if (!hasExtractedFields(fields)) {
+      setStatus('No document text found yet. Keep the document inside the frame.')
+      if (isManualCapture) {
+        setDraftFields(emptyFields())
+        setShowCorrection(true)
+      }
       return
     }
+
+    // Automatically place extracted details into the profile and transition to confirmation screen
     commitFields(fields)
   }, [commitFields, recognize])
 
-  const captureFrame = useCallback(async () => {
+  const captureFrame = useCallback(async (isManualCapture = false) => {
     const video = videoRef.current
     const canvas = canvasRef.current
     if (!video || !canvas || video.readyState < 2) {
@@ -93,8 +109,23 @@ function DocumentScanner() {
     canvas.height = video.videoHeight || 720
     const context = canvas.getContext('2d')
     context.drawImage(video, 0, 0, canvas.width, canvas.height)
-    await runOcrOnImage(canvas)
+    await runOcrOnImage(canvas, isManualCapture)
   }, [runOcrOnImage])
+
+  useEffect(() => {
+    if (!stream || showCorrection) return undefined
+
+    const scanAutomatically = () => {
+      if (!isReading) captureFrame(false)
+    }
+    const timer = window.setInterval(scanAutomatically, 3000)
+    const firstScan = window.setTimeout(scanAutomatically, 1500)
+
+    return () => {
+      window.clearInterval(timer)
+      window.clearTimeout(firstScan)
+    }
+  }, [captureFrame, isReading, showCorrection, stream])
 
   const onUpload = async (event) => {
     const file = event.target.files?.[0]
@@ -104,7 +135,7 @@ function DocumentScanner() {
     canvas.width = image.width
     canvas.height = image.height
     canvas.getContext('2d').drawImage(image, 0, 0)
-    await runOcrOnImage(canvas)
+    await runOcrOnImage(canvas, true)
   }
 
   const updateDraftField = (key, value) => {
@@ -114,7 +145,7 @@ function DocumentScanner() {
     }))
   }
 
-  usePrimaryAction(showCorrection ? () => draftFields && commitFields(draftFields) : captureFrame)
+  usePrimaryAction(showCorrection ? () => draftFields && commitFields(draftFields) : () => captureFrame(true))
 
   return (
     <section className="workspace-panel scanner-panel">
@@ -159,7 +190,7 @@ function DocumentScanner() {
           <p className="scan-status">{isReading ? 'Reading…' : status}</p>
           {ocrError && <p className="error-banner">{ocrError}</p>}
           <div className="action-row">
-            <button className="primary-button" type="button" onClick={captureFrame} disabled={isReading || !stream}>
+            <button className="primary-button" type="button" onClick={() => captureFrame(true)} disabled={isReading || !stream}>
               Capture document
             </button>
             <label className="secondary-button upload-button">

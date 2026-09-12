@@ -29,11 +29,30 @@ function SchemesScreen() {
           {matchedSchemes.map((scheme) => (
             <article className="scheme-card" key={scheme.id || scheme.name}>
               <div>
-                <span className="scheme-tag">Likely eligible</span>
+                <div className="scheme-header-row">
+                  <span className="scheme-tag">Official Govt Scheme</span>
+                  {scheme.ministry && <small className="scheme-ministry">{scheme.ministry}</small>}
+                </div>
                 <h3>{scheme.name}</h3>
+                {scheme.officialName && scheme.officialName !== scheme.name && (
+                  <p className="scheme-official-name"><em>{scheme.officialName}</em></p>
+                )}
                 <p>{scheme.detail}</p>
               </div>
-              <strong>{scheme.amount}</strong>
+              <div className="scheme-meta">
+                <strong className="scheme-amount">{scheme.amount}</strong>
+                {scheme.portalUrl && (
+                  <a
+                    className="portal-link"
+                    href={scheme.portalUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Open official government portal"
+                  >
+                    Official Portal ↗
+                  </a>
+                )}
+              </div>
               <button
                 className="text-button"
                 type="button"
@@ -42,7 +61,7 @@ function SchemesScreen() {
                   navigateTo('application')
                 }}
               >
-                Start application <span aria-hidden="true">→</span>
+                Apply for this scheme <span aria-hidden="true">→</span>
               </button>
             </article>
           ))}

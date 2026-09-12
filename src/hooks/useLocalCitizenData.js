@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { CITIZEN_STORAGE_KEY } from '../constants'
 
 const EMPTY_CITIZEN = {
+  documentType: null,
   name: '',
   dateOfBirth: '',
   idNumber: '',

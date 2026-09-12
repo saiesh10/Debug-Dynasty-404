@@ -20,12 +20,15 @@ export function generateApplicationPDF(citizenData = {}, scheme = {}) {
   doc.text('This form is generated on-device for the citizen\'s records.', 14, 40)
   doc.text('It is not submitted to a government portal in this demo.', 14, 46)
 
+  const docType = citizenData.documentType?.name || 'Government ID'
+
   doc.setFontSize(12)
   const rows = [
     ['Reference number', referenceNumber],
     ['Citizen name', name],
-    ['Date of birth', dob],
+    ['Document type', docType],
     ['ID number', idNumber],
+    ['Date of birth', dob],
     ['Address', address],
     ['Matched scheme', schemeName],
     ['Scheme detail', scheme.detail || 'See scheme listing in the app'],

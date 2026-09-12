@@ -23,8 +23,15 @@ function Topbar() {
 
   return (
     <header className="topbar">
-      <button className="brand" type="button" onClick={goHome}>
-        <span className="brand-mark" aria-hidden="true">DS</span>
+      <button className="brand" type="button" onClick={goHome} aria-label="DivyangSetu home">
+        <span className="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 48 48" role="presentation">
+            <path className="brand-mark-arc" d="M8 28c4-10 10-15 16-15s12 5 16 15" />
+            <path className="brand-mark-road" d="M8 28h32M13 28v7M35 28v7" />
+            <circle cx="8" cy="28" r="2.5" />
+            <circle cx="40" cy="28" r="2.5" />
+          </svg>
+        </span>
         <span>Divyang<span>Setu</span></span>
       </button>
       <div className="topbar-actions">

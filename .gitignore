@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+scratch_test.js
+test_user_aadhaar.js

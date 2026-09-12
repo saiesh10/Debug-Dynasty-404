@@ -31,24 +31,55 @@ export const INDIAN_STATES = [
 ]
 
 export const NAME_PATTERNS = [
-  /(?:name|full\s*name|naam)\s*[:-]\s*([A-Za-z][A-Za-z. ]{2,60})/i,
-  /(?:govt\.?\s*of\s*india[\s\S]{0,80})?(?:to\s+)?([A-Z][a-z]+\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/,
+  /(?:elector(?:'s)?\s*name|मतदाता\s*का\s*नाम|full\s*name|applicant\s*name|name\s*of\s*(?:holder|applicant|cardholder)|\bname\b|naam)\s*[:#=-]?\s*([^\n]{2,80})/iu,
+  /(?:नाम|नांव|आवेदक\s*का\s*नाम|धारक\s*का\s*नाम)\s*[:#=-]?\s*([^\n]{2,80})/u,
 ]
 
 export const DOB_PATTERNS = [
-  /(?:d\.?\s*o\.?\s*b\.?|date\s*of\s*birth|birth(?:day)?|dob)\s*[:-]?\s*([0-9]{1,2}[/.-][0-9]{1,2}[/.-][0-9]{2,4})/i,
-  /(?:d\.?\s*o\.?\s*b\.?|date\s*of\s*birth|dob)\s*[:-]?\s*([0-9]{1,2}\s+[A-Za-z]{3,9}\s+[0-9]{4})/i,
-  /\b([0-9]{1,2}[/.-][0-9]{1,2}[/.-][0-9]{4})\b/,
-  /\b([0-9]{1,2}\s+(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+[0-9]{4})\b/i,
+  /(?:d\.?\s*o\.?\s*b\.?|date\s*of\s*birth|birth\s*date|dob|008|d0b|do8|जन्म\s*तिथि|जन्म\s*तारीख)\s*[:#=-]?\s*([0-9]{1,2}[/.-][0-9]{1,2}[/.-][0-9]{2,4})/iu,
+  /(?:d\.?\s*o\.?\s*b\.?|date\s*of\s*birth|birth\s*date|dob|008|d0b|do8|जन्म\s*तिथि|जन्म\s*तारीख)\s*[:#=-]?\s*([0-9]{8})/iu,
+  /(?:d\.?\s*o\.?\s*b\.?|date\s*of\s*birth|birth\s*date|dob|जन्म\s*तिथि)\s*[:#=-]?\s*([0-9]{1,2}\s+[A-Za-z]{3,12}\s+[0-9]{4})/iu,
+  /(?:year\s*of\s*birth|yob|birth\s*year|जन्म\s*वर्ष)\s*[:#=-]?\s*((?:19|20)[0-9]{2})/iu,
 ]
 
 export const ID_PATTERNS = [
-  /(?:aadhaar|uid|uidai|id(?:entification)?\s*(?:no|number|#)?)\s*[:-]?\s*([0-9]{4}\s*[0-9]{4}\s*[0-9]{4})/i,
-  /\b([0-9]{4}\s[0-9]{4}\s[0-9]{4})\b/,
-  /(?:pan)\s*[:-]?\s*([A-Z]{5}[0-9]{4}[A-Z])/i,
-  /\b([A-Z]{5}[0-9]{4}[A-Z])\b/,
+  /\b([0-9]{4}[ \t]+[0-9]{4}[ \t]+[0-9]{4})\b/,
+  /\b([0-9]{12})\b/,
+  /\b([A-Z]{5}[0-9]{4}[A-Z])\b/i,
+  /\b([A-Z]{2}[-\s]?[0-9]{2}[-\s]?(?:19|20)[0-9]{2}[-\s]?[0-9]{7})\b/i,
+  /\b([A-Z]{2}[0-9]{2}\s*[0-9]{11})\b/i,
+  /\b([A-Z]{2}[0-9]{2}\s*[0-9]{4,14})\b/i,
+  /\b([A-Z]{3}[0-9]{7})\b/i,
+  /\b([A-Z]{1,3}[0-9]{6,16})\b/i,
 ]
 
 export const ADDRESS_PATTERNS = [
-  /(?:address|addr|residence)\s*[:-]\s*([^\n]{8,160})/i,
+  /(?:residential\s*address|residence\s*address|permanent\s*address|perm\s*add|pres\s*add|address|addr|residence|पता|निवास|मुक्काम)\s*[:#=-]?\s*([^\n]{8,200})/iu,
 ]
+
+export const FIELD_LABEL_PATTERNS = {
+  name: /(?:elector(?:'s)?\s*name|मतदाता\s*का\s*नाम|full\s*name|applicant\s*name|name\s*of\s*(?:holder|applicant|cardholder)|\bname\b|\bnaam\b|नाम|नांव|आवेदक\s*का\s*नाम)/iu,
+  dateOfBirth: /(?:date\s*of\s*birth|birth\s*date|\bdob\b|\bd[.\s]*o[.\s]*b\b|\b008\b|\bd0b\b|\bdo8\b|year\s*of\s*birth|\byob\b|birth\s*year|जन्म\s*तिथि|जन्म\s*वर्ष|जन्म\s*तारीख)/iu,
+  idNumber: /(?:aadhaar|aadhar|\buidai\b|\buid\b|आधार|आधार\s*क्रमांक|\bpan\b|permanent\s*account|\bvoter\b|\bepic\b|election|driving\s*licen[cs]e|\bdl\s*no\b|\blicen[cs]e\s*no\b|\budid\b|disability\s*certificate|disability\s*id|\bid\s*(?:number|no|#)?\b|पहचान\s*पत्र|पहचान\s*संख्या)/iu,
+  address: /(?:full\s*)?(?:residential\s*address|residence\s*address|permanent\s*address|\bperm\s*add\b|\bpres\s*add\b|\baddress\b|\baddr\b|residence|पता|निवास|मुक्काम)/iu,
+}
+
+export const INDIAN_PIN_PATTERN = /\b[1-9][0-9]{5}\b/
+
+export const NAME_BLOCKLIST = [
+  'government', 'govt', 'india', 'republic', 'state', 'union', 'national',
+  'authority', 'commission', 'department', 'ministry', 'directorate', 'director',
+  'uidai', 'aadhaar', 'aadhar', 'pan', 'income', 'tax', 'card', 'certificate',
+  'disability', 'election', 'elector', 'voter', 'epic', 'driving', 'licence',
+  'license', 'ration', 'male', 'female', 'transgender', 'gender', 'sex',
+  'father', 'mother', 'husband', 'wife', 'guardian', 'relative', 'doctor',
+  'signature', 'valid', 'validity', 'issue', 'expiry', 'expired', 'date',
+  'address', 'resident', 'enrolment', 'helpdesk', 'tollfree', 'www', 'gov',
+  'bharat', 'nirvachan', 'aayog', 'shri', 'smt', 'kumar', 's/o', 'd/o', 'w/o', 'c/o',
+  'भारत', 'सरकार', 'आधार', 'पहचान', 'पत्र', 'निर्वाचन', 'आयकर', 'प्रमाणपत्र',
+  'दिव्यांगता', 'राशन', 'लिंग', 'पुरुष', 'महिला', 'पिता', 'पति', 'माता'
+]
+
+export const RELATIVE_PREFIXES = /^(?:father(?:'s)?|mother(?:'s)?|husband(?:'s)?|wife(?:'s)?|guardian(?:'s)?|c\/o|s\/o|d\/o|w\/o|s\/w\/d|care\s*of|son\s*of|daughter\s*of|wife\s*of|पिता|पति|माता|संबंधी)\b/i
+
+
